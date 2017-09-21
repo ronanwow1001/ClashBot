@@ -1,5 +1,6 @@
 ## Altis specific
 config.py
+users.ini
 # pycharm
 .idea
 

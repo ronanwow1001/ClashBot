@@ -4,6 +4,8 @@ import asyncio
 import re
 import tldextract
 import urlextract
+import traceback
+import handlers.db_handler as db
 
 
 class MessageHandler():
@@ -16,6 +18,7 @@ class MessageHandler():
             return
         if await self.handle_link(message):
             return
+        await self.handle_react(message)
 
     async def respond(self, message, response):
         if response is None or response is '':
@@ -36,16 +39,30 @@ class MessageHandler():
         should_delete = False
         bad_domains = []
         if self.extractor.has_urls(message.content):
-            bad_domains = self.extractor.find_urls(message.content)
-            for allowed in config.allowed_domains:
-                while allowed in bad_domains:
-                    bad_domains.remove(allowed)
-                if len(bad_domains) >= 1:
-                    should_delete = True
+            for word in message.content.split():
+                sub, sld, tld = tldextract.extract(word)
+                if sld + '.' + tld in config.allowed_domains:
+                    continue
+                bad_domains.append(sld + '.' + tld)
+                should_delete = True
         if should_delete:
+            db.add_link_infraction(message.author.id)
             if len(bad_domains) >= 2:
-                await self.delete_message(message, 'Contained links to ' + '` and `'.join(bad_domains))
+                await self.delete_message(message, 'Contained links to ' + '` and `'.join(bad_domains) + '\nThe user now has `' + str(db.get_link_infractions(message.author.id)) + '` URL infractions.')
             else:
-                await self.delete_message(message, 'Contained link to ' + '` and `'.join(bad_domains))
+                await self.delete_message(message, 'Contained link to ' + '` and `'.join(bad_domains) + '\nThe user now has `' + str(db.get_link_infractions(message.author.id)) + '` URL infractions.')
             return True
         return False
+
+    async def handle_react(self, message):
+        if message.content.startswith(config.exclude_react_starting_character):
+            print('excluded message "'+ message.content + '" from reactions')
+            return
+        try:
+            for key, value in config.reaction_channels.items():
+                if message.channel.id == key:
+                    for emoji in value:
+                        await self.client.add_reaction(message, emoji)
+                    db.add_link_infraction(message.author.id)
+        except:
+            print(traceback.format_exc())
