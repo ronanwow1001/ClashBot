@@ -18,7 +18,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    MessageHandler.on_message(message)
+    await MessageHandler.on_message(message)
 
 def Main():
     try:
@@ -26,3 +26,7 @@ def Main():
     except:
         traceback.format_exc()
         time.sleep(3)
+
+
+if __name__ == '__main__':
+    Main()

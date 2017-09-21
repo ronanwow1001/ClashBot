@@ -1,6 +1,4 @@
 discord_token = ''
-# we keep the link regex secret
-link_regex = """"""
 
 logs_id = ''
 

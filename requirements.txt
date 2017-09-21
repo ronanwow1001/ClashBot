@@ -2,3 +2,4 @@ requests
 discord.py
 asyncio
 tldextract
+urlextract
