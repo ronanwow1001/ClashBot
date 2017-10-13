@@ -5,7 +5,8 @@ logs_id = ''
 # allowed domains, sub-domains of these will also work
 allowed_domains = [
     'projectalt.is',
-    'projectaltis.com'
+    'projectaltis.com',
+    'judge2020.com'
 ]
 
 reaction_channels = {
@@ -13,6 +14,16 @@ reaction_channels = {
     '360242743118921738': ['✅', '❌'],
     '285072438625042432': ['✅', '❌']
 }
+
+# please keep it lowercase!
+links_allowed_roles = [
+    'moderation team',
+    'management team',
+    'technical team',
+    'creative team',
+    'streamer',
+    'contributor'
+]
 
 exclude_react_starting_character = '`'
 
