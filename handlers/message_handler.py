@@ -53,7 +53,7 @@ class MessageHandler():
                 bad_domains.append(sld + '.' + tld)
                 should_delete = True
         for role in message.author.roles:
-            if role.name in config.links_allowed_roles:
+            if role.name.lower() in config.links_allowed_roles:
                 should_delete = False
         if should_delete:
             db.add_link_infraction(message.author.id)
