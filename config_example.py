@@ -16,4 +16,6 @@ reaction_channels = {
 
 exclude_react_starting_character = '`'
 
+command_prefix = '!'
+
 file_db_name = 'users.ini'

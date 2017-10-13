@@ -6,19 +6,24 @@ import tldextract
 import urlextract
 import traceback
 import handlers.db_handler as db
-
+import handlers.command_handler as CommandHandler
 
 class MessageHandler():
     def __init__(self, client):
         self.client = client
         self.extractor = urlextract.URLExtract()
+        self.command_handler = CommandHandler.CommandHandler(client)
 
+    # Return true to tell it to not handle anything after
     async def on_message(self, message):
         if message.author.bot:
-            return
+            return False
         if await self.handle_link(message):
-            return
+            return True
         await self.handle_react(message)
+        if await self.command_handler.on_message(message):
+            return True
+        return False
 
     async def respond(self, message, response):
         if response is None or response is '':
@@ -40,6 +45,8 @@ class MessageHandler():
         bad_domains = []
         if self.extractor.has_urls(message.content):
             for word in message.content.split():
+                if not self.extractor.has_urls(word):
+                    continue
                 sub, sld, tld = tldextract.extract(word)
                 if sld + '.' + tld in config.allowed_domains:
                     continue
@@ -48,9 +55,25 @@ class MessageHandler():
         if should_delete:
             db.add_link_infraction(message.author.id)
             if len(bad_domains) >= 2:
-                await self.delete_message(message, 'Contained links to ' + '` and `'.join(bad_domains) + '\nThe user now has `' + str(db.get_link_infractions(message.author.id)) + '` URL infractions.')
+                await self.delete_message(message,
+                                          'Contained links to `' + '` and `'.join(bad_domains) + '`\nThe user now has `'
+                                          + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
+                                          )
+                await self.client.send_message(message.author,
+                                               'We deleted your message in the Altis Discord becaused it contained links to `'
+                                               + '` and `'.join(bad_domains) + '`. Please remember that only links to '
+                                               + ' and '.join(config.allowed_domains) + ' are allowed in the Altis discord.'
+                                               )
             else:
-                await self.delete_message(message, 'Contained link to ' + '` and `'.join(bad_domains) + '\nThe user now has `' + str(db.get_link_infractions(message.author.id)) + '` URL infractions.')
+                await self.delete_message(message,
+                                          'Contained link to ' + '` and `'.join(bad_domains) + '\nThe user now has `'
+                                          + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
+                                          )
+                await self.client.send_message(message.author,
+                                               'We deleted your message in the Altis Discord becaused it contained a link to '
+                                               + '` and `'.join(bad_domains) + '. Please remember that only links to '
+                                               + 'projectaltis.com and projectalt.is are allowed in the Altis discord.'
+                                               )
             return True
         return False
 

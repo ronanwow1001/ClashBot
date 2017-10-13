@@ -22,6 +22,7 @@ def verify_sections():
     except:
         print('Startup: implementing suggestion_count')
         db['suggestion_count'] = {}
+    db.write()
 
 
 def add_link_infraction(userid):
