@@ -22,6 +22,11 @@ def verify_sections():
     except:
         print('Startup: implementing suggestion_count')
         db['suggestion_count'] = {}
+    try:
+        tmp = db['warnings']
+    except:
+        print('Startup: implementing warnings')
+        db['warnings'] = {}
     db.write()
 
 
@@ -52,6 +57,50 @@ def add_suggestion_count(userid):
         infractions = 0
     db['suggestion_count'][str(userid)] = str(infractions + 1)
     db.write()
+
+def add_warning(userid, warning):
+    # Ensure their sub-section exists
+    try:
+        tmp = db["warnings"][str(userid)]
+    except:
+        db["warnings"][str(userid)] = {}
+    # Get/create infraction count
+    try:
+        infractions = int(db["warnings"][str(userid)]["count"])
+    except:
+        print(traceback.format_exc())
+        db["warnings"][str(userid)]["count"] = 0
+        infractions = db["warnings"][str(userid)]["count"]
+    infractions += 1
+    db["warnings"][str(userid)]["count"] = infractions
+    # Set warning reason
+    # Kind of hacky but it's a database limitation.
+    try:
+        db["warnings"][str(userid)]["reason" + str(infractions)] = warning
+    except:
+        print('UNEXPECTED: exception when defining a new exception')
+        print(traceback.format_exc())
+    db.write()
+
+def get_warning_count_str(userid):
+    try:
+        tmp = db["warnings"][str(userid)]["count"]
+        return str(tmp)
+    except:
+        return str(0)
+
+def get_warnings_text(userid):
+    try:
+        tmp = db["warnings"][str(userid)]["count"]
+    except:
+        # throws exception when it's not there.
+        return 'No warnings'
+    mystr = 'Reasons:'
+    for i in range(tmp):
+        i += 1
+        mystr += '\n' + db["warnings"][str(userid)]["warning" + str(i)]
+    return mystr
+
 
 
 verify_sections()
