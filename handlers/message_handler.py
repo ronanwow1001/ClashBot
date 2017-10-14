@@ -31,7 +31,7 @@ class MessageHandler():
         await self.client.send_message(message.channel, response)
 
     async def delete_message(self, message, reason=None):
-        logm = 'deleting message \n```' + message.content + '``` by user `' + message.author.name + '` (`' + message.author.id + '`)'
+        logm = 'deleting message \n```' + message.content + '``` by <@' + message.author.id + '> (`' + message.author.id + '`)'
         if reason is not None:
             logm += "\nReason: " + reason
         await self.log_message(logm)
@@ -48,7 +48,7 @@ class MessageHandler():
                 if not self.extractor.has_urls(word):
                     continue
                 sub, sld, tld = tldextract.extract(word)
-                if sld + '.' + tld in config.allowed_domains:
+                if sld.lower() + '.' + tld.lower() in config.allowed_domains:
                     continue
                 bad_domains.append(sld + '.' + tld)
                 should_delete = True

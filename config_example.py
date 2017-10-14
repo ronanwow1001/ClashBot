@@ -25,6 +25,13 @@ links_allowed_roles = [
     'contributor'
 ]
 
+warn_command_allowed_roles = [
+    'moderation team',
+    'management team',
+    'technical team',
+    'creative team'
+]
+
 exclude_react_starting_character = '`'
 
 command_prefix = '!'

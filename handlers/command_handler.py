@@ -13,6 +13,12 @@ class CommandHandler():
     def __init__(self, client):
         self.client = client
 
+    def _delete_first_two_words(self, phrase: str) -> str:
+        s = phrase.split()
+        s.pop(0)
+        s.pop(0)
+        return " ".join(s)
+
     # Return true to tell it to not handle anything after
     async def on_message(self, message):
         if message.author.bot:
@@ -20,7 +26,41 @@ class CommandHandler():
         if message.content.startswith(config.command_prefix + 'status'):
             await self.command_status(message)
             return True
+        if message.content.startswith(config.command_prefix + 'warn'):
+            await self.command_warn(message)
+            return True
+        if message.content.startswith(config.command_prefix + 'user'):
+            await self.command_user(message)
+            return True
 
+    async def command_warn(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+        response = self._delete_first_two_words(message.content)
+        db.add_warning(user.id, response)
+        await self.client.send_message(message.channel, 'Warned ' + user.mention + '! The user now has ' +
+                                       str(db.get_warning_count(user.id)) + ' warnings.')
+        await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
+
+    async def command_user(self, message):
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        infractions = db.get_warning_count(user.id)
+        reason = "This user has " + str(infractions) + " warnings!" + db.get_warnings_text(user.id)
+        await self.client.send_message(message.channel, reason)
 
     async def command_status(self, message):
         embed = discord.Embed(
