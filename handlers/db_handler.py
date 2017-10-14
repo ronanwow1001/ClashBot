@@ -30,7 +30,7 @@ def verify_sections():
     db.write()
 
 
-def add_link_infraction(userid):
+def add_link_infraction(userid: int):
     try:
         infractions = int(db['link_infractions'][str(userid)])
     except:
@@ -40,7 +40,7 @@ def add_link_infraction(userid):
     db.write()
 
 
-def get_link_infractions(userid):
+def get_link_infractions(userid: int) -> int:
     try:
         return int(db['link_infractions'][str(userid)])
     except:
@@ -49,7 +49,7 @@ def get_link_infractions(userid):
         return 0
 
 
-def add_suggestion_count(userid):
+def add_suggestion_count(userid: int):
     try:
         infractions = int(db['suggestion_count'][str(userid)])
     except:
@@ -58,7 +58,8 @@ def add_suggestion_count(userid):
     db['suggestion_count'][str(userid)] = str(infractions + 1)
     db.write()
 
-def add_warning(userid, warning):
+def add_warning(userid: int, warning: str):
+    warning = warning.encode('ascii', 'replace').decode()
     # Ensure their sub-section exists
     try:
         tmp = db["warnings"][str(userid)]
@@ -82,23 +83,23 @@ def add_warning(userid, warning):
         print(traceback.format_exc())
     db.write()
 
-def get_warning_count_str(userid):
+def get_warning_count(userid: int) -> int:
     try:
         tmp = db["warnings"][str(userid)]["count"]
-        return str(tmp)
+        return int(tmp)
     except:
-        return str(0)
+        return 0
 
-def get_warnings_text(userid):
+def get_warnings_text(userid: int) -> str:
     try:
-        tmp = db["warnings"][str(userid)]["count"]
+        tmp = int(db["warnings"][str(userid)]["count"])
     except:
         # throws exception when it's not there.
         return 'No warnings'
     mystr = 'Reasons:'
     for i in range(tmp):
         i += 1
-        mystr += '\n' + db["warnings"][str(userid)]["warning" + str(i)]
+        mystr += '\nReason ' + str(i) + ': ' + db["warnings"][str(userid)]["reason" + str(i)]
     return mystr
 
 
