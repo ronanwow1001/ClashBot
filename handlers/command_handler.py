@@ -32,6 +32,35 @@ class CommandHandler():
         if message.content.startswith(config.command_prefix + 'user'):
             await self.command_user(message)
             return True
+        if message.content.startswith(config.command_prefix + 'help'):
+            await self.command_help(message)
+            return True
+
+    async def command_help(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        me = """```
+-=- In The Logs Channel =-=
+!Warn @user Reason
+
+Example:
+!Warn @Ricky#3642 Being British
+
+!User @user 
+
+Example:
+!User @Ricky#3642 
+
+This would then show:
+This user has 1 warnings!
+Reasons:
+Reason 1: Being British```
+        """
+        await self.client.send_message(message.channel, me)
 
     async def command_warn(self, message):
         cont = False
@@ -59,7 +88,7 @@ class CommandHandler():
             return
         user = message.mentions[0]
         infractions = db.get_warning_count(user.id)
-        reason = "This user has " + str(infractions) + " warnings!" + db.get_warnings_text(user.id)
+        reason = "This user has " + str(infractions) + " warnings!\n" + db.get_warnings_text(user.id)
         await self.client.send_message(message.channel, reason)
 
     async def command_status(self, message):
