@@ -43,12 +43,21 @@ class MessageHandler():
     async def handle_link(self, message):
         should_delete = False
         bad_domains = []
+
+        # Check to see if there are URLs at all
         if self.extractor.has_urls(message.content):
             for word in message.content.split():
+                # set a variable so nested foreach's can choose to not delete message
+                should_stop = False
                 if not self.extractor.has_urls(word):
                     continue
                 sub, sld, tld = tldextract.extract(word)
                 if sld.lower() + '.' + tld.lower() in config.allowed_domains:
+                    continue
+                for chid, lst in config.allowed_channel_domains.items():
+                    if chid == message.channel.id and sld.lower() + '.' + tld.lower() in lst:
+                        should_stop = True
+                if should_stop:
                     continue
                 bad_domains.append(sld + '.' + tld)
                 should_delete = True

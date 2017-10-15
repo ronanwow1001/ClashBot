@@ -9,6 +9,13 @@ allowed_domains = [
     'judge2020.com'
 ]
 
+allowed_channel_domains = {
+    '347411900864135189': [
+        'youtube.com',
+        'youtu.be'
+    ]
+}
+
 reaction_channels = {
     # channelid: [array of unicode/custom emotes
     '360242743118921738': ['✅', '❌'],
