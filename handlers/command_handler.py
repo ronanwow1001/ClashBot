@@ -35,6 +35,27 @@ class CommandHandler():
         if message.content.startswith(config.command_prefix + 'help'):
             await self.command_help(message)
             return True
+        if message.content.startswith(config.command_prefix + 'ip'):
+            await self.command_ip(message)
+            return True
+
+    async def command_ip(self, message):
+        ip_help = """
+Once you log on through the launcher, it may come up with an IP whitelisting error.
+To fix this, do the following:
+```
+1. Go to https://projectaltis.com
+2. Log into the website using the account you needed to whitelist on
+3. Click your account name in the top left corner
+4. Search near the bottom of the page for the "Trusted IP's" section
+5. Find your IP address and click accept!
+```
+If you see any IP's there which you don't recognise, please change your account password.
+You're also welcome to disable the feature, however, we recommend you keep it enabled to keep the evil cogs out!
+To find your IP address, click here to use Google's IP checker: https://goo.gl/search/ip
+If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
+"""
+        await self.client.send_message(message.channel, ip_help)
 
     async def command_help(self, message):
         cont = False
@@ -45,15 +66,15 @@ class CommandHandler():
             return
         me = """```
 -=- In The Logs Channel =-=
-!Warn @user Reason
+-Warn @user Reason
 
 Example:
-!Warn @Ricky#3642 Being British
+-Warn @Ricky#3642 Being British
 
-!User @user 
+-User @user 
 
 Example:
-!User @Ricky#3642 
+-User @Ricky#3642 
 
 This would then show:
 This user has 1 warnings!

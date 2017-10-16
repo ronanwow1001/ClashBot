@@ -45,8 +45,11 @@ class MessageHandler():
         bad_domains = []
 
         # Check to see if there are URLs at all
-        if self.extractor.has_urls(message.content):
+        if self.extractor.has_urls(message.content.replace('`', '')):
             for word in message.content.split():
+                print(word)
+                word = word.replace('`', '')
+                print(word)
                 # set a variable so nested foreach's can choose to not delete message
                 should_stop = False
                 if not self.extractor.has_urls(word):
