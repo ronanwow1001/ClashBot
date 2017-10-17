@@ -4,3 +4,4 @@ asyncio
 tldextract
 urlextract
 configobj
+ratelimit

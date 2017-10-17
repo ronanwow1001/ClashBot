@@ -8,8 +8,7 @@ import urlextract
 import traceback
 import requests
 import handlers.db_handler as db
-
-channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to.
+from ratelimit import rate_limited
 
 class CommandHandler():
     def __init__(self, client):
@@ -41,6 +40,7 @@ class CommandHandler():
             await self.command_ip(message)
             return True
 
+    @rate_limited(1, 15)
     async def command_ip(self, message):
         ip_help = """
 <@{0.author.id}>
@@ -59,8 +59,9 @@ To find your IP address, click here to use Google's IP checker: https://goo.gl/s
 If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
 """.format(message)
 
-        await self.client.send_message(discord.Object(id=channel_id), ip_help)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), ip_help)
 
+    @rate_limited(1, 10)
     async def command_help(self, message):
         cont = False
         for role in message.author.roles:
@@ -87,6 +88,7 @@ Reason 1: Being British```
         """
         await self.client.send_message(message.channel, me)
 
+    @rate_limited(1, 3)
     async def command_warn(self, message):
         cont = False
         for role in message.author.roles:
@@ -107,6 +109,7 @@ Reason 1: Being British```
                                        str(db.get_warning_count(user.id)) + ' warnings.')
         await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
 
+    @rate_limited(1, 3)
     async def command_user(self, message):
         if len(message.mentions) != 1:
             await self.client.send_message(message.channel, 'Please (only) mention one user!')
@@ -116,11 +119,12 @@ Reason 1: Being British```
         reason = "This user has " + str(infractions) + " warnings!\n" + db.get_warnings_text(user.id)
         await self.client.send_message(message.channel, reason)
 
+    @rate_limited(1, 30)
     async def command_status(self, message):
         embed = discord.Embed(
             title='Project Altis Status',
             type='rich',
-            description='Statuses for the game. Some are updated automatically.',
+            description='Statuses. Main Game is manually updated while the rest are checked every 5 minutes.',
             url='https://status.projectalt.is',
             colour=discord.Colour.green()
         )
@@ -139,6 +143,7 @@ Reason 1: Being British```
                 embed.add_field(name=dta["name"], value=dta["status_name"])
         except:
             print("Cachet API is dying with code " + str(req.status_code) + ": " + req.text)
+            return
         # Set color appropriately based on the worst status
         embed.colour = {
             1: discord.Colour.green(),
@@ -146,5 +151,5 @@ Reason 1: Being British```
             3: discord.Colour.gold(),
             4: discord.Colour.dark_red()
         }[worst_status]
-        await self.client.send_message(discord.Object(id=channel_id), message.user.mention)
-        await self.client.send_message(discord.Object(id=channel_id), embed=embed)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), message.author.mention)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), embed=embed)
