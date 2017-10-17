@@ -9,7 +9,7 @@ import traceback
 import requests
 import handlers.db_handler as db
 
-channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to. 
+channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to.
 
 class CommandHandler():
     def __init__(self, client):
@@ -25,19 +25,19 @@ class CommandHandler():
     async def on_message(self, message):
         if message.author.bot:
             return False
-        if message.content.startswith(config.command_prefix + 'status'):
+        if message.content.lower().startswith(config.command_prefix + 'status'):
             await self.command_status(message)
             return True
-        if message.content.startswith(config.command_prefix + 'warn'):
+        if message.content.lower().startswith(config.command_prefix + 'warn'):
             await self.command_warn(message)
             return True
-        if message.content.startswith(config.command_prefix + 'user'):
+        if message.content.lower().startswith(config.command_prefix + 'user'):
             await self.command_user(message)
             return True
-        if message.content.startswith(config.command_prefix + 'help'):
+        if message.content.lower().startswith(config.command_prefix + 'help'):
             await self.command_help(message)
             return True
-        if message.content.startswith(config.command_prefix + 'ip'):
+        if message.content.lower().startswith(config.command_prefix + 'ip'):
             await self.command_ip(message)
             return True
 
@@ -75,10 +75,10 @@ If you're having trouble locating the "Trusted IP's" section of the website, ple
 Example:
 -Warn @Ricky#3642 Being British
 
--User @user 
+-User @user
 
 Example:
--User @Ricky#3642 
+-User @Ricky#3642
 
 This would then show:
 This user has 1 warnings!
