@@ -9,6 +9,8 @@ import traceback
 import requests
 import handlers.db_handler as db
 
+channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to. 
+
 class CommandHandler():
     def __init__(self, client):
         self.client = client
@@ -41,6 +43,7 @@ class CommandHandler():
 
     async def command_ip(self, message):
         ip_help = """
+<@{0.author.id}>
 Once you log on through the launcher, it may come up with an IP whitelisting error.
 To fix this, do the following:
 ```
@@ -54,8 +57,9 @@ If you see any IP's there which you don't recognise, please change your account 
 You're also welcome to disable the feature, however, we recommend you keep it enabled to keep the evil cogs out!
 To find your IP address, click here to use Google's IP checker: https://goo.gl/search/ip
 If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
-"""
-        await self.client.send_message(message.channel, ip_help)
+""".format(message)
+
+        await self.client.send_message(discord.Object(id=channel_id), ip_help)
 
     async def command_help(self, message):
         cont = False
@@ -142,4 +146,5 @@ Reason 1: Being British```
             3: discord.Colour.gold(),
             4: discord.Colour.dark_red()
         }[worst_status]
-        await self.client.send_message(message.channel, embed=embed)
+        await self.client.send_message(discord.Object(id=channel_id), message.user.mention)
+        await self.client.send_message(discord.Object(id=channel_id), embed=embed)
