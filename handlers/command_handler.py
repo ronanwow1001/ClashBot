@@ -8,6 +8,7 @@ import urlextract
 import traceback
 import requests
 import handlers.db_handler as db
+from ratelimit import rate_limited
 
 
 class CommandHandler():
@@ -40,6 +41,7 @@ class CommandHandler():
             await self.command_ip(message)
             return True
 
+    @rate_limited(1, 15)
     async def command_ip(self, message):
         ip_help = """
 <@{0.author.id}>
@@ -60,6 +62,7 @@ If you're having trouble locating the "Trusted IP's" section of the website, ple
 
         await self.client.send_message(discord.Object(id=config.toonhq_id), ip_help)
 
+    @rate_limited(1, 10)
     async def command_help(self, message):
         cont = False
         for role in message.author.roles:
@@ -86,6 +89,7 @@ Reason 1: Being British```
         """
         await self.client.send_message(message.channel, me)
 
+    @rate_limited(1, 3)
     async def command_warn(self, message):
         cont = False
         for role in message.author.roles:
@@ -106,6 +110,7 @@ Reason 1: Being British```
                                        str(db.get_warning_count(user.id)) + ' warnings.')
         await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
 
+    @rate_limited(1, 3)
     async def command_user(self, message):
         if len(message.mentions) != 1:
             await self.client.send_message(message.channel, 'Please (only) mention one user!')
@@ -115,6 +120,7 @@ Reason 1: Being British```
         reason = "This user has " + str(infractions) + " warnings!\n" + db.get_warnings_text(user.id)
         await self.client.send_message(message.channel, reason)
 
+    @rate_limited(1, 30)
     async def command_status(self, message):
         embed = discord.Embed(
             title='Project Altis Status',
