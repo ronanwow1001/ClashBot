@@ -41,6 +41,7 @@ class CommandHandler():
 
     async def command_ip(self, message):
         ip_help = """
+{0.author.mention}
 Once you log on through the launcher, it may come up with an IP whitelisting error.
 To fix this, do the following:
 ```
@@ -54,8 +55,9 @@ If you see any IP's there which you don't recognise, please change your account 
 You're also welcome to disable the feature, however, we recommend you keep it enabled to keep the evil cogs out!
 To find your IP address, click here to use Google's IP checker: https://goo.gl/search/ip
 If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
-"""
-        await self.client.send_message(message.channel, ip_help)
+""".format(message)
+
+        await self.client.send_message(discord.Object(id='347411900864135189'), ip_help)
 
     async def command_help(self, message):
         cont = False
@@ -113,6 +115,7 @@ Reason 1: Being British```
         await self.client.send_message(message.channel, reason)
 
     async def command_status(self, message):
+        mention_user = "{0.author.mention}".format(message)
         embed = discord.Embed(
             title='Project Altis Status',
             type='rich',
@@ -142,4 +145,5 @@ Reason 1: Being British```
             3: discord.Colour.gold(),
             4: discord.Colour.dark_red()
         }[worst_status]
-        await self.client.send_message(message.channel, embed=embed)
+        await self.client.send_message(discord.Object(id='347411900864135189'), mention_user)
+        await self.client.send_message(discord.Object(id='347411900864135189'), embed=embed)
