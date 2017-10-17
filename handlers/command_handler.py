@@ -9,6 +9,8 @@ import traceback
 import requests
 import handlers.db_handler as db
 
+channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to. 
+
 class CommandHandler():
     def __init__(self, client):
         self.client = client
@@ -41,7 +43,7 @@ class CommandHandler():
 
     async def command_ip(self, message):
         ip_help = """
-{0.author.mention}
+<@{0.author.id}>
 Once you log on through the launcher, it may come up with an IP whitelisting error.
 To fix this, do the following:
 ```
@@ -57,7 +59,7 @@ To find your IP address, click here to use Google's IP checker: https://goo.gl/s
 If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
 """.format(message)
 
-        await self.client.send_message(discord.Object(id='347411900864135189'), ip_help)
+        await self.client.send_message(discord.Object(id=channel_id), ip_help)
 
     async def command_help(self, message):
         cont = False
@@ -115,7 +117,6 @@ Reason 1: Being British```
         await self.client.send_message(message.channel, reason)
 
     async def command_status(self, message):
-        mention_user = "{0.author.mention}".format(message)
         embed = discord.Embed(
             title='Project Altis Status',
             type='rich',
@@ -145,5 +146,5 @@ Reason 1: Being British```
             3: discord.Colour.gold(),
             4: discord.Colour.dark_red()
         }[worst_status]
-        await self.client.send_message(discord.Object(id='347411900864135189'), mention_user)
-        await self.client.send_message(discord.Object(id='347411900864135189'), embed=embed)
+        await self.client.send_message(discord.Object(id=channel_id), message.user.mention)
+        await self.client.send_message(discord.Object(id=channel_id), embed=embed)
