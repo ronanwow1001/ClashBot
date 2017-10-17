@@ -9,7 +9,6 @@ import traceback
 import requests
 import handlers.db_handler as db
 
-channel_id = '' #Insert discord channel ID you wish the bot to post Status&IP messages to. 
 
 class CommandHandler():
     def __init__(self, client):
@@ -59,7 +58,7 @@ To find your IP address, click here to use Google's IP checker: https://goo.gl/s
 If you're having trouble locating the "Trusted IP's" section of the website, please refer to the following image: https://imgur.com/a/35LuQ
 """.format(message)
 
-        await self.client.send_message(discord.Object(id=channel_id), ip_help)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), ip_help)
 
     async def command_help(self, message):
         cont = False
@@ -120,7 +119,7 @@ Reason 1: Being British```
         embed = discord.Embed(
             title='Project Altis Status',
             type='rich',
-            description='Statuses for the game. Some are updated automatically.',
+            description='Statuses. Main Game is manually updated while the rest are checked every 5 minutes.',
             url='https://status.projectalt.is',
             colour=discord.Colour.green()
         )
@@ -139,6 +138,7 @@ Reason 1: Being British```
                 embed.add_field(name=dta["name"], value=dta["status_name"])
         except:
             print("Cachet API is dying with code " + str(req.status_code) + ": " + req.text)
+            return
         # Set color appropriately based on the worst status
         embed.colour = {
             1: discord.Colour.green(),
@@ -146,5 +146,5 @@ Reason 1: Being British```
             3: discord.Colour.gold(),
             4: discord.Colour.dark_red()
         }[worst_status]
-        await self.client.send_message(discord.Object(id=channel_id), message.user.mention)
-        await self.client.send_message(discord.Object(id=channel_id), embed=embed)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), message.author.mention)
+        await self.client.send_message(discord.Object(id=config.toonhq_id), embed=embed)
