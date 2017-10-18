@@ -25,7 +25,7 @@ class CommandHandler():
     async def on_message(self, message):
         if message.author.bot:
             return False
-        if message.content.lower().startswith(config.command_prefix + 'status'):
+        if message.content.lower() == config.command_prefix + 'status':
             await self.command_status(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'warn'):
@@ -34,17 +34,17 @@ class CommandHandler():
         if message.content.lower().startswith(config.command_prefix + 'user'):
             await self.command_user(message)
             return True
-        if message.content.lower().startswith(config.command_prefix + 'help'):
+        if message.content.lower() == config.command_prefix + 'help':
             await self.command_help(message)
             return True
-        if message.content.lower().startswith(config.command_prefix + 'ip'):
+        if message.content.lower() == config.command_prefix + 'ip':
             await self.command_ip(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'stats'):
             await self.command_stats(message)
             return True
 
-    @rate_limited(1, 10)
+    @rate_limited(2, 5)
     async def command_stats(self, message):
         if len(message.mentions) > 1:
             await self.client.send_message(message.channel, 'Please only mention one user!')
@@ -54,7 +54,7 @@ class CommandHandler():
         downvotes = db.get_suggestion_downvotes(user.id)
         await self.client.send_message(message.channel, '%s has received approximately %s upvotes and %s total downvotes!' % (user.mention, upvotes, downvotes))
 
-    @rate_limited(1, 15)
+    @rate_limited(2, 5)
     async def command_ip(self, message):
         ip_help = """
 <@{0.author.id}>
@@ -75,7 +75,7 @@ If you're having trouble locating the "Trusted IP's" section of the website, ple
 
         await self.client.send_message(discord.Object(id=config.toonhq_id), ip_help)
 
-    @rate_limited(1, 10)
+    @rate_limited(2, 7)
     async def command_help(self, message):
         cont = False
         for role in message.author.roles:
@@ -102,7 +102,7 @@ Reason 1: Being British```
         """
         await self.client.send_message(message.channel, me)
 
-    @rate_limited(1, 3)
+    @rate_limited(10, 3)
     async def command_warn(self, message):
         cont = False
         for role in message.author.roles:
@@ -123,8 +123,14 @@ Reason 1: Being British```
                                        str(db.get_warning_count(user.id)) + ' warnings.')
         await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
 
-    @rate_limited(1, 3)
+    @rate_limited(2, 5)
     async def command_user(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
         if len(message.mentions) != 1:
             await self.client.send_message(message.channel, 'Please (only) mention one user!')
             return
@@ -133,7 +139,7 @@ Reason 1: Being British```
         reason = "This user has " + str(infractions) + " warnings!\n" + db.get_warnings_text(user.id)
         await self.client.send_message(message.channel, reason)
 
-    @rate_limited(1, 30)
+    @rate_limited(2, 10)
     async def command_status(self, message):
         embed = discord.Embed(
             title='Project Altis Status',
