@@ -49,6 +49,75 @@ def get_link_infractions(userid: int) -> int:
         return 0
 
 
+def add_suggestion_upvote(userid: int):
+    try:
+        tmp = db["suggestion_count"][str(userid)]
+    except:
+        db["suggestion_count"][str(userid)] = {}
+    try:
+        ups = int(db["suggestion_count"][str(userid)]["ups"])
+    except:
+        ups = 0
+    db["suggestion_count"][str(userid)]["ups"] = str(ups + 1)
+    db.write()
+
+
+def add_suggestion_downvote(userid: int):
+    try:
+        tmp = db["suggestion_count"][str(userid)]
+    except:
+        db["suggestion_count"][str(userid)] = {}
+    try:
+        downs = int(db["suggestion_count"][str(userid)]["downs"])
+    except:
+        downs = 0
+    db["suggestion_count"][str(userid)]["downs"] = str(downs + 1)
+    db.write()
+
+
+def remove_suggestion_upvote(userid: int):
+    try:
+        tmp = db["suggestion_count"][str(userid)]
+    except:
+        db["suggestion_count"][str(userid)] = {}
+    try:
+        ups = db["suggestion_count"][str(userid)]["ups"]
+    except:
+        ups = 0
+    db["suggestion_count"][str(userid)]["ups"] = str(ups - 1)
+    db.write()
+
+
+def remove_suggestion_downvote(userid: int):
+    try:
+        tmp = db["suggestion_count"][str(userid)]
+    except:
+        db["suggestion_count"][str(userid)] = {}
+    try:
+        downs = db["suggestion_count"][str(userid)]["downs"]
+    except:
+        downs = 0
+    db["suggestion_count"][str(userid)]["downs"] = str(downs - 1)
+    db.write()
+
+
+
+def get_suggestion_upvotes(userid: int) -> int:
+    try:
+        ups = db["suggestion_count"][str(userid)]["ups"]
+    except:
+        ups = 0
+    return int(ups)
+
+
+def get_suggestion_downvotes(userid: int) -> int:
+    try:
+        downs = db["suggestion_count"][str(userid)]["downs"]
+    except:
+        downs = 0
+    return int(downs)
+
+
 def add_suggestion_count(userid: int):
     try:
         infractions = int(db['suggestion_count'][str(userid)])
@@ -57,6 +126,7 @@ def add_suggestion_count(userid: int):
         infractions = 0
     db['suggestion_count'][str(userid)] = str(infractions + 1)
     db.write()
+
 
 def add_warning(userid: int, warning: str):
     warning = warning.encode('ascii', 'replace').decode()
@@ -83,12 +153,14 @@ def add_warning(userid: int, warning: str):
         print(traceback.format_exc())
     db.write()
 
+
 def get_warning_count(userid: int) -> int:
     try:
         tmp = db["warnings"][str(userid)]["count"]
         return int(tmp)
     except:
         return 0
+
 
 def get_warnings_text(userid: int) -> str:
     try:
@@ -101,7 +173,6 @@ def get_warnings_text(userid: int) -> str:
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["warnings"][str(userid)]["reason" + str(i)]
     return mystr
-
 
 
 verify_sections()

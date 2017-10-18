@@ -9,6 +9,7 @@ import traceback
 import requests
 import handlers.db_handler as db
 from ratelimit import rate_limited
+import typehelper
 
 class CommandHandler():
     def __init__(self, client):
@@ -39,6 +40,19 @@ class CommandHandler():
         if message.content.lower().startswith(config.command_prefix + 'ip'):
             await self.command_ip(message)
             return True
+        if message.content.lower().startswith(config.command_prefix + 'stats'):
+            await self.command_stats(message)
+            return True
+
+    @rate_limited(1, 10)
+    async def command_stats(self, message):
+        if len(message.mentions) > 1:
+            await self.client.send_message(message.channel, 'Please only mention one user!')
+            return
+        user = typehelper.Member(message.mentions[0] if len(message.mentions) == 1 else message.author)
+        upvotes = db.get_suggestion_upvotes(user.id)
+        downvotes = db.get_suggestion_downvotes(user.id)
+        await self.client.send_message(message.channel, '%s has received approximately %s upvotes and %s total downvotes!' % (user.mention, upvotes, downvotes))
 
     @rate_limited(1, 15)
     async def command_ip(self, message):
