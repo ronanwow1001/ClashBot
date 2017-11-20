@@ -31,6 +31,9 @@ class CommandHandler():
         if message.content.lower().startswith(config.command_prefix + 'warn'):
             await self.command_warn(message)
             return True
+        if message.content.lower().startswith(config.command_prefix + 'limit'):
+            await self.command_limit(message)
+            return True
         if message.content.lower().startswith(config.command_prefix + 'user'):
             await self.command_user(message)
             return True
@@ -121,7 +124,43 @@ Reason 1: Being British```
         db.add_warning(user.id, response)
         await self.client.send_message(message.channel, 'Warned ' + user.mention + '! The user now has ' +
                                        str(db.get_warning_count(user.id)) + ' warnings.')
-        await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
+        infractions = db.get_warning_count(user.id)
+        if infractions == 1:
+            warnings_plural = ""
+        else:
+            warnings_plural = "s"
+        warnembed = discord.Embed(
+        title="WARNING",
+        type='rich',
+        description="You have been warned in the Project Altis discord.\nPlease read the rules: <#{}>".format(config.rules_id),
+        colour=discord.Colour.red()
+        )
+        warnembed.add_field(name='Reason', value=response)
+        warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+        #await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
+        await self.client.send_message(user, embed=warnembed)
+
+    @rate_limited(10, 3)
+    async def command_limit(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        giverole = discord.utils.get(message.server.roles, name=config.limiting_role)
+        await self.client.add_roles(user, giverole)
+        await self.client.send_message(message.channel, 'User ' + user.mention + 'has been assigned the Rule15 role')
+        #db.add_warning(user.id, response)
+        if len(config.limited_channels) == 1:
+            plural_check = "channel."
+        else:
+            plural_check = "channels."
+        await self.client.send_message(user, "You have been restricted from contributing to the {} {}".format(', '.join(config.limited_channels), plural_check) + "\nThis is due to breaking rule 15 which can be viewed here: <#{}>".format(config.rules_id) + "\n\nIf you'd like to appeal, please send a Direct Message to <@{}>".format(379820496759554049))
 
     @rate_limited(2, 5)
     async def command_user(self, message):
@@ -136,8 +175,30 @@ Reason 1: Being British```
             return
         user = message.mentions[0]
         infractions = db.get_warning_count(user.id)
-        reason = "This user has " + str(infractions) + " warnings!\n" + db.get_warnings_text(user.id)
-        await self.client.send_message(message.channel, reason)
+        links = db.get_link_infractions(user.id)
+        for role in message.author.roles:
+            if role.name.lower() == config.limiting_role:
+                limiting_message = "**YES**"
+            else:
+                limiting_message = "**NO**"
+        if infractions == 1:
+            warnings_plural = ""
+        else:
+            warnings_plural = "s"
+        if links == 1:
+            links_plural = ""
+        else:
+            links_plural = "s"
+        userembed = discord.Embed(
+            title='@{}'.format(user),
+            type='rich',
+            description='Info for the user {}'.format(user),
+            colour=discord.Colour.orange()
+        )
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n".format(str(infractions), warnings_plural) + db.get_warnings_text(user.id))
+        userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
+        userembed.add_field(name='Rule 15 role?', value=limiting_message)
+        await self.client.send_message(message.channel, embed=userembed)
 
     @rate_limited(2, 10)
     async def command_status(self, message):

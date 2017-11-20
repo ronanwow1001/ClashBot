@@ -69,33 +69,43 @@ class MessageHandler():
                 should_delete = False
         if should_delete:
             db.add_link_infraction(message.author.id)
+            if db.get_link_infractions(message.author.id) == 1:
+                links_plural = ""
+            else:
+                links_plural = "s"
+            linkembed = discord.Embed(
+            title="LINK INFRACTION",
+            type='rich',
+            description="We've deleted your message in the Altis Discord because it contained a link to {}, please see the allowed domains below".format(', '.join(bad_domains)),
+            colour=discord.Colour.red()
+            )
+            linkembed.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
+            linkembed.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
+            linkembed.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")
             if len(bad_domains) >= 2:
                 await self.delete_message(message,
                                           'Contained links to `' + '` and `'.join(bad_domains) + '`\nThe user now has `'
                                           + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
                                           )
-                await self.client.send_message(message.author,
-                                               'We deleted your message in the Altis Discord becaused it contained links to `'
-                                               + '` and `'.join(bad_domains) + '`. Please remember that only links to '
-                                               + ' and '.join(config.allowed_domains) + ' are allowed in the Altis discord.'
-                                               )
+                await self.client.send_message(message.author, embed=linkembed)
+                                               #'We deleted your message in the Altis Discord becaused it contained links to `'
+                                               #+ '` and `'.join(bad_domains) + '`. Please remember that only links to '
+                                               #+ ' and '.join(config.allowed_domains) + ' are allowed in the Altis discord.'
+                                               #)
             else:
                 await self.delete_message(message,
                                           'Contained link to ' + '` and `'.join(bad_domains) + '\nThe user now has `'
                                           + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
                                           )
-                await self.client.send_message(message.author,
-                                               'We deleted your message in the Altis Discord becaused it contained a link to '
-                                               + '` and `'.join(bad_domains) + '. Please remember that only links to '
-                                               + 'projectaltis.com and projectalt.is are allowed in the Altis discord.'
-                                               )
+                await self.client.send_message(message.author, embed=linkembed)
+                                               #'We deleted your message in the Altis Discord because it contained a link to '
+                                               #+ '` and `'.join(bad_domains) + '. Please remember that only links to '
+                                               #+ 'projectaltis.com and projectalt.is are allowed in the Altis discord.'
+                                               #)
             return True
         return False
 
     async def handle_react(self, message):
-        if message.content.startswith(config.exclude_react_starting_character):
-            print('excluded message "'+ message.content + '" from reactions')
-            return
         try:
             for key, value in config.reaction_channels.items():
                 if message.channel.id == key:

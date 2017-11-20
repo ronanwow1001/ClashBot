@@ -1,6 +1,6 @@
 ## Altis Discord Bot
 
-Work-In-Progress discord bot for the PA discord.
+Discord bot for the PA discord.
 
 #### Config
 
