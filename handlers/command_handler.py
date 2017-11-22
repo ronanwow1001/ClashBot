@@ -10,10 +10,16 @@ import requests
 import handlers.db_handler as db
 from ratelimit import rate_limited
 import typehelper
+import blacklist
 
 class CommandHandler():
     def __init__(self, client):
         self.client = client
+
+    def _delete_first_word(self, phrase: str) -> str:
+        s = phrase.split()
+        s.pop(0)
+        return " ".join(s)
 
     def _delete_first_two_words(self, phrase: str) -> str:
         s = phrase.split()
@@ -45,6 +51,9 @@ class CommandHandler():
             return True
         if message.content.lower().startswith(config.command_prefix + 'stats'):
             await self.command_stats(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'bot'):
+            await self.command_bot(message)
             return True
 
     @rate_limited(2, 5)
@@ -137,7 +146,6 @@ Reason 1: Being British```
         )
         warnembed.add_field(name='Reason', value=response)
         warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
-        #await self.client.send_message(user, 'You have been warned in the Altis discord. Reason: \n' + response)
         await self.client.send_message(user, embed=warnembed)
 
     @rate_limited(10, 3)
@@ -176,8 +184,9 @@ Reason 1: Being British```
         user = message.mentions[0]
         infractions = db.get_warning_count(user.id)
         links = db.get_link_infractions(user.id)
+        get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
-            if role.name.lower() == config.limiting_role:
+            if config.limiting_role in get_users_roles:
                 limiting_message = "**YES**"
             else:
                 limiting_message = "**NO**"
@@ -195,10 +204,30 @@ Reason 1: Being British```
             description='Info for the user {}'.format(user),
             colour=discord.Colour.orange()
         )
-        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n".format(str(infractions), warnings_plural) + db.get_warnings_text(user.id))
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(infractions), warnings_plural, db.get_warnings_text(user.id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
+
+
+    @rate_limited(2, 5)
+    async def command_bot(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        warnid = self._delete_first_word(message.content)
+        botwarning = db.get_bot_warns(warnid)
+        botlookup = discord.Embed(
+            title='ID Lookup',
+            type='rich',
+            description='Info for ID: {}'.format(warnid),
+            colour=discord.Colour.green()
+        )
+        botlookup.add_field(name='Message', value="```{}```".format(botwarning))
+        await self.client.send_message(message.channel, embed=botlookup)
 
     @rate_limited(2, 10)
     async def command_status(self, message):

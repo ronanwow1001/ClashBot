@@ -27,6 +27,12 @@ def verify_sections():
     except:
         print('Startup: implementing warnings')
         db['warnings'] = {}
+    try:
+        tmp = db['bot-warnings']
+    except:
+        print('Startup: implementing bot-warnings')
+        db['bot-warnings'] = {}
+        db['bot-warnings']["total"] = 10000
     db.write()
 
 
@@ -47,6 +53,13 @@ def get_link_infractions(userid: int) -> int:
         db['link_infractions'][str(userid)] = '0'
         db.write()
         return 0
+
+def get_bot_warns(warnid):
+    try:
+
+        return db['bot-warnings'][str(warnid)]
+    except:
+        return "Error, no warning with this ID"
 
 
 def add_suggestion_upvote(userid: int):
@@ -153,6 +166,24 @@ def add_warning(userid: int, warning: str):
         print(traceback.format_exc())
     db.write()
 
+def add_bot_warning(bot_warning: str):
+    bot_warning = bot_warning.encode('ascii', 'replace').decode()
+    try:
+        tmp = db["bot-warnings"]
+    except:
+        db["bot-warnings"] = {}
+        db['bot-warnings']["total"] = str(10000)
+    lastid = db["bot-warnings"]["total"]
+    global newid
+    newid = int(lastid) + 7
+    log = str(newid)
+    db["bot-warnings"]["total"] = str(newid)
+    try:
+        db["bot-warnings"][log] = bot_warning
+    except:
+        print('UNEXPECTED: exception when defining a new exception')
+        print(traceback.format_exc())
+    db.write()
 
 def get_warning_count(userid: int) -> int:
     try:

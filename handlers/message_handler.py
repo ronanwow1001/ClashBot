@@ -7,6 +7,7 @@ import urlextract
 import traceback
 import handlers.db_handler as db
 import handlers.command_handler as CommandHandler
+import blacklist
 
 class MessageHandler():
     def __init__(self, client):
@@ -22,6 +23,8 @@ class MessageHandler():
             return True
         await self.handle_react(message)
         if await self.command_handler.on_message(message):
+            return True
+        if await self.bad_word_checker(message):
             return True
         return False
 
@@ -82,28 +85,74 @@ class MessageHandler():
             linkembed.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
             linkembed.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
             linkembed.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")
+
+            linkembedstaff = discord.Embed(
+            title="LINK INFRACTION",
+            type='rich',
+            description="We've deleted your message in the Altis Discord because it contained a link to {}, please see the allowed domains below".format(', '.join(bad_domains)),
+            colour=discord.Colour.red()
+            )
+            linkembedstaff.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
+            linkembedstaff.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
+            linkembedstaff.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")
             if len(bad_domains) >= 2:
-                await self.delete_message(message,
-                                          'Contained links to `' + '` and `'.join(bad_domains) + '`\nThe user now has `'
-                                          + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
-                                          )
+                await self.client.send_message(discord.Object(id=config.logs_id), embed=linkembedstaff)
+                await self.client.delete_message(message)
                 await self.client.send_message(message.author, embed=linkembed)
-                                               #'We deleted your message in the Altis Discord becaused it contained links to `'
-                                               #+ '` and `'.join(bad_domains) + '`. Please remember that only links to '
-                                               #+ ' and '.join(config.allowed_domains) + ' are allowed in the Altis discord.'
-                                               #)
             else:
-                await self.delete_message(message,
-                                          'Contained link to ' + '` and `'.join(bad_domains) + '\nThe user now has `'
-                                          + str(db.get_link_infractions(message.author.id)) + '` URL infractions.'
-                                          )
+                await self.client.send_message(discord.Object(id=config.logs_id), embed=linkembedstaff)
+                await self.client.delete_message(message)
                 await self.client.send_message(message.author, embed=linkembed)
-                                               #'We deleted your message in the Altis Discord because it contained a link to '
-                                               #+ '` and `'.join(bad_domains) + '. Please remember that only links to '
-                                               #+ 'projectaltis.com and projectalt.is are allowed in the Altis discord.'
-                                               #)
             return True
         return False
+
+    async def bad_word_checker(self, message):
+        bad_word = False #Auto the message to not having a swear word, innocent till proven guilty right?
+        bw_chat_message = message.content.split(" ")#Splits messages into a list so we can check every word.
+        #Comparing each word against the blacklist
+        for msg in bw_chat_message:
+            for bw in blacklist.bad_words:
+                if msg.lower() == bw:
+                    bad_word = True
+                if "­" in msg:
+                    bad_word = True
+
+        if bad_word == True:
+            await self.client.delete_message(message)
+            db.add_bot_warning(message.content)
+            db.add_warning(message.author.id, "BOT - ID: {}".format(db.newid))
+
+        #Warning message
+        infractions = db.get_warning_count(message.author)
+        if infractions == 1:
+            warnings_plural = ""
+        else:
+            warnings_plural = "s"
+        bwembed = discord.Embed(
+        title="WARNING",
+        type='rich',
+        description="Our bot has detected you swearing!\nPlease remember no NFSW language is allowed in the Project Altis discord\n\nIf this was a mistake please DM <@379820496759554049> and quote ID: {}\n".format(db.newid),
+        colour=discord.Colour.red()
+        )
+        bwembed.add_field(name='Message', value="```{}```".format(message.content))
+        bwembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+
+        bwembedstaff = discord.Embed(
+        title="WARNING",
+        type='rich',
+        description="Delete message from {}\nID: {}\n".format(message.author, db.newid),
+        colour=discord.Colour.green()
+        )
+        bwembedstaff.add_field(name='Message', value="```{}```".format(message.content))
+        bwembedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+
+        #Send messages, log to database and delete the message
+        if bad_word == True:
+            await self.client.send_message(message.author, embed=bwembed)
+            await self.client.send_message(discord.Object(id=config.logs_id), embed=bwembedstaff)
+
+
+
 
     async def handle_react(self, message):
         try:
