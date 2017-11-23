@@ -52,7 +52,7 @@ class CommandHandler():
         if message.content.lower().startswith(config.command_prefix + 'stats'):
             await self.command_stats(message)
             return True
-        if message.content.lower().startswith(config.command_prefix + 'bot'):
+        if message.content.lower().startswith(config.command_prefix + 'id'):
             await self.command_bot(message)
             return True
 
@@ -64,7 +64,15 @@ class CommandHandler():
         user = typehelper.Member(message.mentions[0] if len(message.mentions) == 1 else message.author)
         upvotes = db.get_suggestion_upvotes(user.id)
         downvotes = db.get_suggestion_downvotes(user.id)
-        await self.client.send_message(message.channel, '%s has received approximately %s upvotes and %s total downvotes!' % (user.mention, upvotes, downvotes))
+        statsembed123 = discord.Embed(
+        title="Stats for {}".format(user),
+        type='rich',
+        description="{} had received approximately".format(user),
+        colour=discord.Colour.magenta()
+        )
+        statsembed123.add_field(name='Upvotes', value=upvotes)
+        statsembed123.add_field(name='Downvotes', value=downvotes)
+        await self.client.send_message(message.channel, embed=statsembed123)
 
     @rate_limited(2, 5)
     async def command_ip(self, message):

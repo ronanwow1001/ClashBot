@@ -1,6 +1,8 @@
+#Add to this string anything that should be ignored. eg ,h.el,lo would be hello
+scan_ignore = 'ÀáâäÆãåāçćčèéêëēėęîïíīįìłñńôöòóœøōõßśšûüùúūÿžźż`¬,<.>/?#~;:]}[{=+-_)(*&^%$£"!\'\|'
+
 #Place words to be blacklisted in here
 #Please use Python lists
-
 bad_words = [
     'acrotomophilia',
     'anal',
@@ -109,6 +111,7 @@ bad_words = [
     'fuckfuckfuck',
     'fuckin',
     'fucking',
+    'fuckers',
     'fucktards',
     'fudgepacker',
     'fugly',
@@ -167,6 +170,7 @@ bad_words = [
     'niggers'
     'niggerfaggot',
     'nig',
+    'niggerino',
     'niglet',
     'nimphomania',
     'nipple',
