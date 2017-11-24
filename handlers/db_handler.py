@@ -8,6 +8,8 @@ import traceback
 
 db = ConfigObj(infile=config.file_db_name)
 
+newid = 0
+
 
 # Verify sections to prevent first-start errors.
 # Runs every time this is imported but takes little resources.
