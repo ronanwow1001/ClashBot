@@ -265,7 +265,6 @@ bad_words = [
     'tushy',
     'twat',
     'twink',
-    'twinkie',
     'undressing',
     'upskirt',
     'urethra',
