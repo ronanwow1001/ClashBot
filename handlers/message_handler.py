@@ -92,6 +92,8 @@ class MessageHandler():
             description="I've deleted a message in the Altis Discord because it contained a link to {}, please see the allowed domains below.".format(', '.join(bad_domains)),
             colour=discord.Colour.red()
             )
+            linkembedstaff.add_field(name='User', value="@{}".format(message.author))
+            linkembedstaff.add_field(name='Link', value="```{}```".format(', '.join(bad_domains)))
             linkembedstaff.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
             linkembedstaff.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
             linkembedstaff.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")

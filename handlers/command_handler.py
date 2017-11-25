@@ -170,8 +170,19 @@ Reason 1: Being British```
         user = message.mentions[0]
         giverole = discord.utils.get(message.server.roles, name=config.limiting_role)
         await self.client.add_roles(user, giverole)
-        await self.client.send_message(message.channel, 'User ' + user.mention + 'has been assigned the Rule15 role')
-        #db.add_warning(user.id, response)
+        limitstaffembed = discord.Embed(
+        title="Limited",
+        type='rich',
+        description="I have given {} the {} role!".format(user, config.limiting_role),
+        colour=discord.Colour.green()
+        )
+        limitembed = discord.Embed(
+        title="Limited",
+        type='rich',
+        description="I have given {} the {} role!".format(user, config.limiting_role),
+        colour=discord.Colour.green()
+        )
+        await self.client.send_message(message.channel, embed=limitstaffembed)
         if len(config.limited_channels) == 1:
             plural_check = "channel."
         else:
