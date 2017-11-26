@@ -3,7 +3,6 @@
 bad_words = [
     'acrotomophilia',
     'anal',
-	'anchor baby',
     'anus',
     'apeshit',
     'arsehole',
@@ -20,7 +19,6 @@ bad_words = [
     'bastinado',
     'bbw',
     'bdsm',
-	'beaner',
     'bestiality',
     'bimbos',
     'birdlock',
@@ -43,7 +41,6 @@ bad_words = [
     'busty',
     'buttcheeks',
     'butthole',
-	'camel jockey',
     'camgirl',
     'camslut',
     'camwhore',
@@ -109,7 +106,6 @@ bad_words = [
     'fuckfuckfuck',
     'fuckin',
     'fucking',
-	'fucker',
     'fuckers',
     'fucktards',
     'fudgepacker',
@@ -117,7 +113,6 @@ bad_words = [
     'futanari',
     'gay',
     'genitals',
-	'ghetto',
     'goatcx',
     'goatse',
     'gokkun',
@@ -270,7 +265,6 @@ bad_words = [
     'vorarephilia',
     'vulva',
     'wank',
-	'white trash',
     'whore',
     '卍'
 ]
