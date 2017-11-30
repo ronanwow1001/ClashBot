@@ -8,6 +8,7 @@ import traceback
 import handlers.db_handler as db
 import handlers.command_handler as CommandHandler
 import blacklist
+from handlers.warning_check import WarningCheck
 
 class MessageHandler():
     def __init__(self, client):
@@ -110,6 +111,7 @@ class MessageHandler():
 
     async def bad_word_checker(self, message):
         bad_word = False #Auto the message to not having a swear word, innocent till proven guilty right?
+        detectedword = ""
         bw_chat_message = message.content.split(" ")#Splits messages into a list so we can check every word.
         #Comparing each word against the blacklist
         for msg in bw_chat_message: #Loop through words in chat message
@@ -117,6 +119,7 @@ class MessageHandler():
             for bw in blacklist.bad_words:
                 if word_clean == bw:
                     bad_word = True
+                    detectedword = word_clean
 
         if bad_word == True:
             await self.client.delete_message(message)
@@ -141,14 +144,17 @@ class MessageHandler():
         bwembedstaff = discord.Embed(
         title="WARNING",
         type='rich',
-        description="Delete message from {}\nID: {}\n".format(message.author, db.newid),
+        description="Deleted message from {}\nID: {}\n".format(message.author, db.newid),
         colour=discord.Colour.green()
         )
         bwembedstaff.add_field(name='Message', value="```{}```".format(message.content))
+        bwembedstaff.add_field(name='Channel', value="#{}".format(message.channel))
+        bwembedstaff.add_field(name='Detected Word', value="```{}```".format(detectedword))
         bwembedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
 
         #Send messages, log to database and delete the message
         if bad_word == True:
+            await WarningCheck(self.client).check_warnings(message.author.id)
             await self.client.send_message(message.author, embed=bwembed)
             await self.client.send_message(discord.Object(id=config.logs_id), embed=bwembedstaff)
 
