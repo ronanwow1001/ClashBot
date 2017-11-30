@@ -10,19 +10,11 @@ class WarningCheck():
 
     async def check_warnings(self, mentioned_user_id):
         self.count = db.get_warning_count(mentioned_user_id)
-        if self.count == 1:
-            onewarning = discord.Embed(
-            title="Heads up",
-            type='rich',
-            description="User <@{}> currently has one warning. You might want to kick them".format(mentioned_user_id),
-            colour=discord.Colour.orange()
-            )
-            await self.client.send_message(discord.Object(id=config.logs_id), embed=onewarning)
-        elif self.count == 2:
+        if self.count == 2:
             twowarnings = discord.Embed(
             title="Heads up",
             type='rich',
-            description="User <@{}> currently has two warnings. You might want to kick/ban them".format(mentioned_user_id),
+            description="This is <@{}> second warning. You might want to kick them".format(mentioned_user_id),
             colour=discord.Colour.orange()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=twowarnings)
@@ -30,7 +22,7 @@ class WarningCheck():
             threewarnings = discord.Embed(
             title="Heads up",
             type='rich',
-            description="User <@{}> currently has Three warnings. You should ban them".format(mentioned_user_id),
+            description="User <@{}> currently has Three warnings. You might want to ban them".format(mentioned_user_id),
             colour=discord.Colour.red()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=threewarnings)
