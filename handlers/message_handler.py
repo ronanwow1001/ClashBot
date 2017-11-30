@@ -8,6 +8,7 @@ import traceback
 import handlers.db_handler as db
 import handlers.command_handler as CommandHandler
 import blacklist
+from handlers.warning_check import WarningCheck
 
 class MessageHandler():
     def __init__(self, client):
@@ -153,6 +154,7 @@ class MessageHandler():
 
         #Send messages, log to database and delete the message
         if bad_word == True:
+            await WarningCheck(self.client).check_warnings(message.author.id)
             await self.client.send_message(message.author, embed=bwembed)
             await self.client.send_message(discord.Object(id=config.logs_id), embed=bwembedstaff)
 

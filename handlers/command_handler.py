@@ -11,6 +11,7 @@ import handlers.db_handler as db
 from ratelimit import rate_limited
 import typehelper
 import blacklist
+from handlers.warning_check import WarningCheck
 
 class CommandHandler():
     def __init__(self, client):
@@ -39,6 +40,9 @@ class CommandHandler():
             return True
         if message.content.lower().startswith(config.command_prefix + 'limit'):
             await self.command_limit(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'unlimit'):
+            await self.command_unlimit(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'user'):
             await self.command_user(message)
@@ -139,13 +143,22 @@ Reason 1: Being British```
             return
         response = self._delete_first_two_words(message.content)
         db.add_warning(user.id, response)
-        await self.client.send_message(message.channel, 'Warned ' + user.mention + '! The user now has ' +
-                                       str(db.get_warning_count(user.id)) + ' warnings.')
+        await WarningCheck(self.client).check_warnings(user.id)
         infractions = db.get_warning_count(user.id)
         if infractions == 1:
             warnings_plural = ""
         else:
             warnings_plural = "s"
+        warnedstaff = discord.Embed(
+        title="Warned",
+        type='rich',
+        description="Done! {} has been warned".format(user),
+        colour=discord.Colour.green()
+        )
+        warnedstaff.add_field(name='Reason', value='```{}```'.format(response))
+        warnedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+        warnedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=warnedstaff)
         warnembed = discord.Embed(
         title="WARNING",
         type='rich',
@@ -176,18 +189,51 @@ Reason 1: Being British```
         description="I have given {} the {} role!".format(user, config.limiting_role),
         colour=discord.Colour.green()
         )
-        limitembed = discord.Embed(
-        title="Limited",
-        type='rich',
-        description="I have given {} the {} role!".format(user, config.limiting_role),
-        colour=discord.Colour.green()
-        )
         await self.client.send_message(message.channel, embed=limitstaffembed)
         if len(config.limited_channels) == 1:
             plural_check = "channel."
         else:
             plural_check = "channels."
-        await self.client.send_message(user, "You have been restricted from contributing to the {} {}".format(', '.join(config.limited_channels), plural_check) + "\nThis is due to breaking rule 15 which can be viewed here: <#{}>".format(config.rules_id) + "\n\nIf you'd like to appeal, please send a Direct Message to <@{}>".format(379820496759554049))
+        limitembed = discord.Embed(
+        title="LIMITED",
+        type='rich',
+        description="You have been restricted from contributing to the {} {}\nThis is due to breaking rule 15 which can be viewed here: <#{}>\n\nIf you'd like to appeal, please send a Direct Message to <@{}>".format(', '.join(config.limited_channels), plural_check, config.rules_id, 379820496759554049),
+        colour=discord.Colour.red()
+        )
+        await self.client.send_message(user, embed=limitembed)
+
+    @rate_limited(10, 3)
+    async def command_unlimit(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        removerole = discord.utils.get(message.server.roles, name=config.limiting_role)
+        await self.client.remove_roles(user, removerole)
+        if len(config.limited_channels) == 1:
+            plural_check = "channel."
+        else:
+            plural_check = "channels."
+        limitstaffembed = discord.Embed(
+        title="Limited",
+        type='rich',
+        description="I have removed the {} role from {}".format(config.limiting_role, user),
+        colour=discord.Colour.green()
+        )
+        limitembed = discord.Embed(
+        title="Removed Limitation",
+        type='rich',
+        description="You are no longer limited from the {} {}".format(', '.join(config.limited_channels), plural_check),
+        colour=discord.Colour.green()
+        )
+        await self.client.send_message(message.channel, embed=limitstaffembed)
+        await self.client.send_message(user, embed=limitembed)
 
     @rate_limited(2, 5)
     async def command_user(self, message):
