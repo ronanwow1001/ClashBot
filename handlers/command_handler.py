@@ -32,8 +32,8 @@ class CommandHandler():
     async def on_message(self, message):
         if message.author.bot:
             return False
-        if message.content.lower() == config.command_prefix + 'status':
-            await self.command_status(message)
+        if message.content.lower() == config.command_prefix + 'stats':
+            await self.command_stats(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'warn'):
             await self.command_warn(message)
