@@ -4,7 +4,6 @@ import config
 import time
 import traceback
 import json
-import urllib.request
 import requests
 
 
@@ -16,8 +15,8 @@ class InvasionHandler():
         await self.client.wait_until_ready()
         messagelive = False
         while True == True:
-            data = urllib.request.urlopen('https://www.projectaltis.com/api/invasion').read()
-            invdata = json.loads(data)
+            data = requests.get('https://www.projectaltis.com/api/invasion')
+            invdata = json.loads(data.text)
 
             # Setting vars for use later
             district_name = ""
