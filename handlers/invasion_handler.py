@@ -7,10 +7,11 @@ import json
 import urllib.request
 import requests
 
+
 class InvasionHandler():
     def __init__(self, client):
         self.client = client
-        
+
     async def tracker(self):
         await self.client.wait_until_ready()
         messagelive = False
@@ -18,27 +19,38 @@ class InvasionHandler():
             data = urllib.request.urlopen('https://www.projectaltis.com/api/invasion').read()
             invdata = json.loads(data)
 
-            #Setting vars for use later
+            # Setting vars for use later
             district_name = ""
             invasion_cog = ""
             invasion_counter = ""
 
-            for district in invdata['districts']: #Loops through the districts on the API
-            	districtvalues = district.values() #Gets the values from the district.
+            for district in invdata['districts']: #  Loops through the districts on the API
+                districtvalues = district.values() # Gets the values from the district.
 
-            	#Getting district name, might be used later
-            	for apikey in district:
-            		districtname = apikey
+            	# Getting district name, might be used later
+                for apikey in district:
+                    districtname = apikey
 
-            	#Starting invasion check
-            	for valueloop in districtvalues:
-            		if type(valueloop['invasion']) is dict: #Checking if district has a invasion
-            			disval = valueloop['invasion'] #Less typing
-            			district_name = district_name + "{}\n".format(districtname)
-            			invasion_cog = invasion_cog + "{}\n".format(disval['cog'])
-            			invasion_counter = invasion_counter + "{}/{} - {} Min left\n".format(disval['defeated'], disval['size'], disval['left'])
-            		else: #If there is no invasion
-            			pass #Ignore this district
+            	# Starting invasion check
+                for valueloop in districtvalues:
+                    if type(valueloop['invasion']) is dict: # Checking if district has a invasion
+                        disval = valueloop['invasion'] # Less typing
+                        district_name = district_name + "{}\n".format(districtname)# Adding the district name to the var above
+                        if disval['cog'] == 'Sellbot Department Invasion':
+                            invasion_cog = invasion_cog + "Sellbot Department\n"
+                        elif disval['cog'] == 'Cashbot Department Invasion':
+                            invasion_cog = invasion_cog + "Cashbot Department\n"
+                        elif disval['cog'] == 'Lawbot Department Invasion':
+                            invasion_cog = invasion_cog + "Lawbot Department\n"
+                        elif disval['cog'] == 'Bossbot Department Invasion':
+                            invasion_cog = invasion_cog + "Bossbot Department\n"
+                        elif disval['cog'] == 'Boardbot Department Invasion':
+                            invasion_cog = invasion_cog + "Boardbot Department\n"                                                    
+                        else:
+                            invasion_cog = invasion_cog + "{}\n".format(disval['cog'])
+                        invasion_counter = invasion_counter + "{}/{} - {} Min left\n".format(disval['defeated'], disval['size'], disval['left'])
+                    else: # If there is no invasion
+                        pass # Ignore this district
             invasion_tracker_embed = discord.Embed(
             title="Invasion Tracker",
             type='rich',
