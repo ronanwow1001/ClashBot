@@ -3,6 +3,7 @@ discord_token = ''
 logs_id = ''
 toonhq_id = ''
 limiting_role = ''#For Example Rule15
+artlimiting_role = ''#For Example Art-no-post
 rules_id = ''
 
 
@@ -41,6 +42,10 @@ reaction_channels = {
 #Please use their channel names, not ID's
 limited_channels = [
     'Suggestions'
+]
+
+artlimited_channels = [
+    'art'
 ]
 
 #MODERATION
