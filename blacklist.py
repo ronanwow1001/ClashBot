@@ -108,6 +108,7 @@ bad_words = [
     'fuckfuck',
     'fuckfuckfuck',
     'fuckin',
+    'fucked',
     'fucking',
     'fucker',
     'fuckers',

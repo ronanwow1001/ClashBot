@@ -3,7 +3,9 @@ discord_token = ''
 logs_id = ''
 toonhq_id = ''
 limiting_role = ''#For Example Rule15
+artlimiting_role = ''#For Example Art-no-post
 rules_id = ''
+gameinfo = ''
 
 
 #LINKS
@@ -25,10 +27,7 @@ allowed_channel_domains = {
 
 # please keep it lowercase!
 links_allowed_roles = [
-    'moderation team',
-    'management team',
-    'technical team',
-    'creative team',
+    'staff',
     'streamer',
     'contributor'
 ]
@@ -46,13 +45,14 @@ limited_channels = [
     'Suggestions'
 ]
 
+artlimited_channels = [
+    'art'
+]
+
 #MODERATION
 
 warn_command_allowed_roles = [
-    'moderation team',
-    'management team',
-    'technical team',
-    'creative team'
+    'staff'
 ]
 
 command_prefix = '!'

@@ -44,6 +44,12 @@ class CommandHandler():
         if message.content.lower().startswith(config.command_prefix + 'unlimit'):
             await self.command_unlimit(message)
             return True
+        if message.content.lower().startswith(config.command_prefix + 'artlimit'):
+            await self.command_artlimit(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'artunlimit'):
+            await self.command_artunlimit(message)
+            return True
         if message.content.lower().startswith(config.command_prefix + 'user'):
             await self.command_user(message)
             return True
@@ -52,9 +58,6 @@ class CommandHandler():
             return True
         if message.content.lower() == config.command_prefix + 'ip':
             await self.command_ip(message)
-            return True
-        if message.content.lower().startswith(config.command_prefix + 'stats'):
-            await self.command_stats(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'id'):
             await self.command_bot(message)
@@ -235,6 +238,72 @@ Reason 1: Being British```
         await self.client.send_message(message.channel, embed=limitstaffembed)
         await self.client.send_message(user, embed=limitembed)
 
+    @rate_limited(10, 3)
+    async def command_artlimit(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        giverole = discord.utils.get(message.server.roles, name=config.artlimiting_role)
+        await self.client.add_roles(user, giverole)
+        limitstaffembed = discord.Embed(
+        title="Limited",
+        type='rich',
+        description="I have given {} the {} role!".format(user, config.artlimiting_role),
+        colour=discord.Colour.green()
+        )
+        await self.client.send_message(message.channel, embed=limitstaffembed)
+        if len(config.limited_channels) == 1:
+            plural_check = "channel."
+        else:
+            plural_check = "channels."
+        limitembed = discord.Embed(
+        title="LIMITED",
+        type='rich',
+        description="You have been restricted from contributing to the {} {}\nThis is due to breaking rule 15 which can be viewed here: <#{}>\n\nIf you'd like to appeal, please send a Direct Message to <@{}>".format(', '.join(config.artlimited_channels), plural_check, config.rules_id, 379820496759554049),
+        colour=discord.Colour.red()
+        )
+        await self.client.send_message(user, embed=limitembed)
+
+    @rate_limited(10, 3)
+    async def command_artunlimit(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        removerole = discord.utils.get(message.server.roles, name=config.artlimiting_role)
+        await self.client.remove_roles(user, removerole)
+        if len(config.limited_channels) == 1:
+            plural_check = "channel."
+        else:
+            plural_check = "channels."
+        limitstaffembed = discord.Embed(
+        title="Limited",
+        type='rich',
+        description="I have removed the {} role from {}".format(config.limiting_role, user),
+        colour=discord.Colour.green()
+        )
+        limitembed = discord.Embed(
+        title="Removed Limitation",
+        type='rich',
+        description="You are no longer limited from the {} {}".format(', '.join(config.artlimited_channels), plural_check),
+        colour=discord.Colour.green()
+        )
+        await self.client.send_message(message.channel, embed=limitstaffembed)
+        await self.client.send_message(user, embed=limitembed)
+
     @rate_limited(2, 5)
     async def command_user(self, message):
         cont = False
@@ -293,38 +362,3 @@ Reason 1: Being British```
         )
         botlookup.add_field(name='Message', value="```{}```".format(botwarning))
         await self.client.send_message(message.channel, embed=botlookup)
-
-    @rate_limited(2, 10)
-    async def command_status(self, message):
-        embed = discord.Embed(
-            title='Project Altis Status',
-            type='rich',
-            description='Statuses. Main Game is manually updated while the rest are checked every 5 minutes.',
-            url='https://status.projectalt.is',
-            colour=discord.Colour.green()
-        )
-        req = requests.get("https://status.projectalt.is/api/v1/components")
-
-        # 1 = operational
-        # 2 = performance
-        # 3 = partial outage
-        # 4 = major outage
-        worst_status = 1
-        try:
-            jsn = json.loads(req.text)
-            for dta in jsn["data"]:
-                if dta["status"] > worst_status:
-                    worst_status = dta["status"]
-                embed.add_field(name=dta["name"], value=dta["status_name"])
-        except:
-            print("Cachet API is dying with code " + str(req.status_code) + ": " + req.text)
-            return
-        # Set color appropriately based on the worst status
-        embed.colour = {
-            1: discord.Colour.green(),
-            2: discord.Colour.blue(),
-            3: discord.Colour.gold(),
-            4: discord.Colour.dark_red()
-        }[worst_status]
-        await self.client.send_message(discord.Object(id=config.toonhq_id), message.author.mention)
-        await self.client.send_message(discord.Object(id=config.toonhq_id), embed=embed)
