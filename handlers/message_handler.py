@@ -49,11 +49,11 @@ class MessageHandler():
         bad_domains = []
 
         # Check to see if there are URLs at all
+        end_message_url = ""
         if self.extractor.has_urls(message.content.replace('`', '')):
             for word in message.content.split():
-                print(word)
                 word = word.replace('`', '')
-                print(word)
+                end_message_url = word
                 # set a variable so nested foreach's can choose to not delete message
                 should_stop = False
                 if not self.extractor.has_urls(word):
@@ -90,11 +90,12 @@ class MessageHandler():
             linkembedstaff = discord.Embed(
             title="LINK INFRACTION",
             type='rich',
-            description="I've deleted a message in the Altis Discord because it contained a link to {}, please see the allowed domains below.".format(', '.join(bad_domains)),
+            description="Message has been deleted and the user has been sent a message! Please see the info below",
             colour=discord.Colour.red()
             )
-            linkembedstaff.add_field(name='User', value="@{}".format(message.author))
-            linkembedstaff.add_field(name='Link', value="```{}```".format(', '.join(bad_domains)))
+            linkembedstaff.add_field(name='User', value="<@{}>".format(message.author.id))
+            linkembedstaff.add_field(name='Link', value="```{}```".format(end_message_url))
+            linkembedstaff.add_field(name='Channel', value="```{}```".format(message.channel))
             linkembedstaff.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
             linkembedstaff.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
             linkembedstaff.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")

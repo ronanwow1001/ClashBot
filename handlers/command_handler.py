@@ -53,9 +53,6 @@ class CommandHandler():
         if message.content.lower() == config.command_prefix + 'ip':
             await self.command_ip(message)
             return True
-        if message.content.lower().startswith(config.command_prefix + 'stats'):
-            await self.command_stats(message)
-            return True
         if message.content.lower().startswith(config.command_prefix + 'id'):
             await self.command_bot(message)
             return True
@@ -293,38 +290,3 @@ Reason 1: Being British```
         )
         botlookup.add_field(name='Message', value="```{}```".format(botwarning))
         await self.client.send_message(message.channel, embed=botlookup)
-
-    @rate_limited(2, 10)
-    async def command_status(self, message):
-        embed = discord.Embed(
-            title='Project Altis Status',
-            type='rich',
-            description='Statuses. Main Game is manually updated while the rest are checked every 5 minutes.',
-            url='https://status.projectalt.is',
-            colour=discord.Colour.green()
-        )
-        req = requests.get("https://status.projectalt.is/api/v1/components")
-
-        # 1 = operational
-        # 2 = performance
-        # 3 = partial outage
-        # 4 = major outage
-        worst_status = 1
-        try:
-            jsn = json.loads(req.text)
-            for dta in jsn["data"]:
-                if dta["status"] > worst_status:
-                    worst_status = dta["status"]
-                embed.add_field(name=dta["name"], value=dta["status_name"])
-        except:
-            print("Cachet API is dying with code " + str(req.status_code) + ": " + req.text)
-            return
-        # Set color appropriately based on the worst status
-        embed.colour = {
-            1: discord.Colour.green(),
-            2: discord.Colour.blue(),
-            3: discord.Colour.gold(),
-            4: discord.Colour.dark_red()
-        }[worst_status]
-        await self.client.send_message(discord.Object(id=config.toonhq_id), message.author.mention)
-        await self.client.send_message(discord.Object(id=config.toonhq_id), embed=embed)
