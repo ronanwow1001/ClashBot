@@ -5,6 +5,7 @@ toonhq_id = ''
 limiting_role = ''#For Example Rule15
 artlimiting_role = ''#For Example Art-no-post
 rules_id = ''
+gameinfo = ''
 
 
 #LINKS

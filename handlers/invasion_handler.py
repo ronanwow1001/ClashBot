@@ -45,7 +45,7 @@ class InvasionHandler():
                         elif disval['cog'] == 'Bossbot Department Invasion':
                             invasion_cog = invasion_cog + "Bossbot Department\n"
                         elif disval['cog'] == 'Boardbot Department Invasion':
-                            invasion_cog = invasion_cog + "Boardbot Department\n"                                                    
+                            invasion_cog = invasion_cog + "Boardbot Department\n"
                         else:
                             invasion_cog = invasion_cog + "{}\n".format(disval['cog'])
                         invasion_counter = invasion_counter + "{}/{} - {} Min left\n".format(disval['defeated'], disval['size'], disval['left'])
@@ -61,7 +61,7 @@ class InvasionHandler():
             invasion_tracker_embed.add_field(name='Cog', value=invasion_cog)
             invasion_tracker_embed.add_field(name='Status', value=invasion_counter)
             if messagelive == False:
-                message = await self.client.send_message(discord.Object(id=387263295708725258), embed=invasion_tracker_embed)
+                message = await self.client.send_message(discord.Object(id=config.gameinfo), embed=invasion_tracker_embed)
                 message
                 messagelive = True
             elif messagelive == True:
@@ -104,7 +104,7 @@ class InvasionHandler():
                 4: discord.Colour.dark_red()
             }[worst_status]
             if messagelive == False:
-                statusmessage = await self.client.send_message(discord.Object(id=387263295708725258), embed=embed)
+                statusmessage = await self.client.send_message(discord.Object(id=config.gameinfo), embed=embed)
                 statusmessage
                 messagelive = True
             elif messagelive == True:
