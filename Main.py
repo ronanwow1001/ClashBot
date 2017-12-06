@@ -31,7 +31,6 @@ async def invtracker():
 @client.event
 async def stracker():
     try:
-        1 / 0
         await client.wait_until_ready()
         await InvasionHandler.statustracker()
     except:
