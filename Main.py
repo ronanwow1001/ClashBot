@@ -6,6 +6,12 @@ from handlers import invasion_handler
 import config
 import time
 import traceback
+from raven import Client as ravenClient
+
+enable_error_reports = False
+if config.sentry_dsn is not '':
+    errorReporter = ravenClient(config.sentry_dsn)
+    enable_error_reports = True
 
 client = discord.Client()
 MessageHandler = message_handler.MessageHandler(client)
@@ -14,13 +20,24 @@ InvasionHandler = invasion_handler.InvasionHandler(client)
 
 @client.event
 async def invtracker():
-    await client.wait_until_ready()
-    await InvasionHandler.tracker()
+    try:
+        await client.wait_until_ready()
+        await InvasionHandler.tracker()
+    except:
+        if enable_error_reports:
+            errorReporter.captureException()
+        print(traceback.format_exc())
 
 @client.event
 async def stracker():
-    await client.wait_until_ready()
-    await InvasionHandler.statustracker()
+    try:
+        1 / 0
+        await client.wait_until_ready()
+        await InvasionHandler.statustracker()
+    except:
+        if enable_error_reports:
+            errorReporter.captureException()
+        print(traceback.format_exc())
 
 @client.event
 async def on_ready():
@@ -31,7 +48,12 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    await MessageHandler.on_message(message)
+    try:
+        await MessageHandler.on_message(message)
+    except:
+        if enable_error_reports:
+            errorReporter.captureException()
+        print(traceback.format_exc())
 
 @client.event
 async def on_reaction_add(reaction, user):
@@ -44,7 +66,9 @@ def Main():
         client.loop.create_task(stracker())
         client.run(config.discord_token)
     except:
-        traceback.format_exc()
+        if enable_error_reports:
+            errorReporter.captureException()
+        print(traceback.format_exc())
         time.sleep(3)
 
 

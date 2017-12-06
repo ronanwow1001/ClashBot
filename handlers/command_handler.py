@@ -7,6 +7,7 @@ import tldextract
 import urlextract
 import traceback
 import requests
+import subprocess
 import handlers.db_handler as db
 from ratelimit import rate_limited
 import typehelper
@@ -61,6 +62,9 @@ class CommandHandler():
             return True
         if message.content.lower().startswith(config.command_prefix + 'id'):
             await self.command_bot(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'reboot'):
+            await self.command_reboot(message)
             return True
 
     @rate_limited(2, 5)
@@ -128,6 +132,17 @@ Reasons:
 Reason 1: Being British```
         """
         await self.client.send_message(message.channel, me)
+
+    async def command_reboot(self, message):
+        if message.author.id not in config.admins:
+            return
+        gitprocess = subprocess.check_output(['git', 'pull'])
+        await self.client.send_message(message.author, 'Git pull output: \n```\n' + str(gitprocess) + '\n```\nGoing down for a reboot!')
+        import os
+        # assuming we're in the immortal auto-restart hypervisor (https://immortal.run)
+        os._exit(0)
+
+
 
     @rate_limited(10, 3)
     async def command_warn(self, message):

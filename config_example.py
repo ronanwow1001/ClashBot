@@ -1,5 +1,10 @@
 discord_token = ''
 
+admins = [
+    '',
+    ''
+]
+sentry_dsn = ''
 logs_id = ''
 toonhq_id = ''
 limiting_role = ''#For Example Rule15
