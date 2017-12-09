@@ -274,5 +274,8 @@ bad_words = [
     'white trash',
     'whore',
     '卍',
-    '卐'
+    '卐',
+    'loli',
+    'jessler',
+    'tessyd'
 ]
