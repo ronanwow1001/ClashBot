@@ -277,5 +277,7 @@ bad_words = [
     '卐',
     'loli',
     'jessler',
-    'tessyd'
+    'tessyd',
+    'cyka blyat',
+    'shitstain'
 ]
