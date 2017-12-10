@@ -17,9 +17,8 @@ gameinfo = ''
 
 # allowed domains, sub-domains of these will also work
 allowed_domains = [
-    'projectalt.is',
-    'projectaltis.com',
-    'judge2020.com'
+    'corpclash.com',
+    'judge2020.com',
     'ricky.lol'
 ]
 

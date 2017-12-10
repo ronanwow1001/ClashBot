@@ -84,7 +84,7 @@ class MessageHandler():
             colour=discord.Colour.red()
             )
             linkembed.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
-            linkembed.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
+            linkembed.add_field(name='Allowed Domains', value="corpclash.com")
             linkembed.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")
 
             linkembedstaff = discord.Embed(
@@ -97,7 +97,7 @@ class MessageHandler():
             linkembedstaff.add_field(name='Link', value="```{}```".format(end_message_url))
             linkembedstaff.add_field(name='Channel', value="```{}```".format(message.channel))
             linkembedstaff.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
-            linkembedstaff.add_field(name='Allowed Domains', value="projectalt.is\nprojectaltis.com")
+            linkembedstaff.add_field(name='Allowed Domains', value="corpclash.com")
             linkembedstaff.add_field(name='Allowed in #ToonHQ', value="youtube.com\nyoutu.be")
             if len(bad_domains) >= 2:
                 await self.client.send_message(discord.Object(id=config.logs_id), embed=linkembedstaff)
