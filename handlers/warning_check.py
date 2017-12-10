@@ -10,7 +10,7 @@ class WarningCheck():
 
     async def check_warnings(self, mentioned_user_id):
         self.count = db.get_warning_count(mentioned_user_id)
-        if self.count == 2:
+        if self.count == 4:
             twowarnings = discord.Embed(
             title="Heads up",
             type='rich',
@@ -18,7 +18,7 @@ class WarningCheck():
             colour=discord.Colour.orange()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=twowarnings)
-        elif self.count == 3:
+        elif self.count == 7:
             threewarnings = discord.Embed(
             title="Heads up",
             type='rich',
@@ -26,7 +26,7 @@ class WarningCheck():
             colour=discord.Colour.red()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=threewarnings)
-        elif self.count > 3:
+        elif self.count > 7:
             morewarnings = discord.Embed(
             title="Heads up",
             type='rich',
