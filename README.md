@@ -1,6 +1,6 @@
-## Altis Discord Bot
+## Corporate Clash Discord Bot
 
-Discord bot for the PA discord.
+Discord bot for the TT:CC discord.
 
 #### Config
 
@@ -15,4 +15,4 @@ The limiting_role variable should be the name of the role that limits users from
 Fill out blacklist.py with words which the bot should auto delete.
 
 
-Copyright 2017 Project Altis. All right reserved.
+Copyright 2017 "Toontown: Corporate Clash". All right reserved.

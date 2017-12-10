@@ -92,7 +92,7 @@ class CommandHandler():
 Once you log on through the launcher, it may come up with an IP whitelisting error.
 To fix this, do the following:
 ```
-1. Go to https://projectaltis.com
+1. Go to https://corpclash.com
 2. Log into the website using the account you needed to whitelist on
 3. Click your account name in the top left corner
 4. Search near the bottom of the page for the "Trusted IP's" section
@@ -180,7 +180,7 @@ Reason 1: Being British```
         warnembed = discord.Embed(
         title="WARNING",
         type='rich',
-        description="You have been warned in the Project Altis discord.\nPlease read the rules: <#{}>".format(config.rules_id),
+        description="You have been warned in the Corporate Clash discord.\nPlease read the rules: <#{}>".format(config.rules_id),
         colour=discord.Colour.red()
         )
         warnembed.add_field(name='Reason', value=response)

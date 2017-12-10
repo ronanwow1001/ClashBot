@@ -15,7 +15,7 @@ class InvasionHandler():
         await self.client.wait_until_ready()
         messagelive = False
         while True == True:
-            data = requests.get('https://www.projectaltis.com/api/invasion')
+            data = requests.get('https://www.corpclash.com/api/invasion')
             invdata = json.loads(data.text)
 
             # Setting vars for use later
@@ -119,7 +119,7 @@ class InvasionHandler():
         messagelive = False
         while True:
             embed = discord.Embed(
-                title='Project Altis Status',
+                title='Corporate Clash Status',
                 type='rich',
                 description='Statuses. Main Game is manually updated while the rest are checked every 5 minutes.',
                 url='https://status.projectalt.is',

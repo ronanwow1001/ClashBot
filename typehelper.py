@@ -1,12 +1,12 @@
 #####################
 #
-# Helping to annotate types within AltisBot. Great for pycharm development and doesn't impact runtime functionality.
+# Helping to annotate types within ClashBot. Great for pycharm development and doesn't impact runtime functionality.
 #
 # Created by Judge2020 on 10/17/2017
 # https://judge2020.com
 #
-# Created for "AltisBot", which is property of Project Altis.
-# https://projectaltis.com
+# Created for "ClashBot", which is property of Toontown: Corporate Clash.
+# https://corpclash.com
 #
 #
 # We trust that the passed paramater is correct, so if something is incorrectly passed it throws an exception.

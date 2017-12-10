@@ -80,7 +80,7 @@ class MessageHandler():
             linkembed = discord.Embed(
             title="LINK INFRACTION",
             type='rich',
-            description="We've deleted your message in the Altis Discord because it contained a link to {}, please see the allowed domains below.".format(', '.join(bad_domains)),
+            description="We've deleted your message in the Corporate Clash Discord because it contained a link to {}, please see the allowed domains below.".format(', '.join(bad_domains)),
             colour=discord.Colour.red()
             )
             linkembed.add_field(name='Current Infractions', value="{} infraction{}".format(db.get_link_infractions(message.author.id), links_plural))
@@ -136,7 +136,7 @@ class MessageHandler():
         bwembed = discord.Embed(
         title="WARNING",
         type='rich',
-        description="Our bot has detected you swearing!\nPlease remember no NFSW language is allowed in the Project Altis discord.\n\nIf this was a mistake please DM <@379820496759554049> and quote ID: {}\n".format(db.newid),
+        description="Our bot has detected you swearing!\nPlease remember no NFSW language is allowed in the Corporate Clash discord.\n\nIf this was a mistake please DM <@379820496759554049> and quote ID: {}\n".format(db.newid),
         colour=discord.Colour.red()
         )
         bwembed.add_field(name='Message', value="```{}```".format(message.content))
