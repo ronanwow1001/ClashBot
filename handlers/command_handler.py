@@ -174,10 +174,10 @@ Reason 1: Being British```
         if (msgType == 1):
             if (isinstance(response, int) == True):
                 if (response <= len(config.rules)):
-                    print (response)
+                    msgType = msgType
                 else:
                     msgType = 2
-            resp = int(response)
+            resp = int(response) - 1
         db.add_warning(user.id, response)
         await WarningCheck(self.client).check_warnings(user.id)
         infractions = db.get_warning_count(user.id)
@@ -208,7 +208,7 @@ Reason 1: Being British```
             warnembed = discord.Embed(
             title="WARNING",
             type='rich',
-            description='You have been warned in the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp-1]),
+            description='You have been warned in the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
             colour=discord.Colour.red()
             )
             warnembed.add_field(name='Reason', value="Rule {}".format(response))
