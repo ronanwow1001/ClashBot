@@ -18,7 +18,7 @@ class MessageHandler():
 
     # Return true to tell it to not handle anything after
     async def on_message(self, message):
-        if message.author.bot:
+        if message.author.id != '329668530926780426' and message.author.bot: # 329668530926780426 is Sheepy's ID
             return False
         if await self.handle_link(message):
             return True
