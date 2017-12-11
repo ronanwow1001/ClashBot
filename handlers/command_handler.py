@@ -29,6 +29,13 @@ class CommandHandler():
         s.pop(0)
         return " ".join(s)
 
+    def _delete_first_three_words(self, phrase: str) -> str:
+        s = phrase.split()
+        s.pop(0)
+        s.pop(0)
+        s.pop(0)
+        return " ".join(s)
+
     # Return true to tell it to not handle anything after
     async def on_message(self, message):
         if message.author.bot:
@@ -157,9 +164,20 @@ Reason 1: Being British```
             return
         user = message.mentions[0]
         if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please specify the type!')
+            return
+        if len(message.content.split()) < 4:
             await self.client.send_message(message.channel, 'Please include a reason!')
             return
-        response = self._delete_first_two_words(message.content)
+        msgType = int(self._delete_first_two_words(message.content)[0])
+        response = self._delete_first_three_words(message.content)
+        if (msgType == 1):
+            if (isinstance(response, int) == True):
+                if (response <= len(config.rules)):
+                    msgType = msgType
+                else:
+                    msgType = 2
+            resp = int(response) - 1
         db.add_warning(user.id, response)
         await WarningCheck(self.client).check_warnings(user.id)
         infractions = db.get_warning_count(user.id)
@@ -177,14 +195,24 @@ Reason 1: Being British```
         warnedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
         warnedstaff.add_field(name='User ID', value="```{}```".format(user.id))
         await self.client.send_message(discord.Object(id=config.logs_id), embed=warnedstaff)
-        warnembed = discord.Embed(
-        title="WARNING",
-        type='rich',
-        description="You have been warned in the Corporate Clash discord.\nPlease read the rules: <#{}>".format(config.rules_id),
-        colour=discord.Colour.red()
-        )
-        warnembed.add_field(name='Reason', value=response)
-        warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+        if msgType > 1:
+            warnembed = discord.Embed(
+            title="WARNING",
+            type='rich',
+            description="You have been warned in the Corporate Clash discord.\nPlease read the rules: <#{}>".format(config.rules_id),
+            colour=discord.Colour.red()
+            )
+            warnembed.add_field(name='Reason', value=response)
+            warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+        else:
+            warnembed = discord.Embed(
+            title="WARNING",
+            type='rich',
+            description='You have been warned in the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
+            colour=discord.Colour.red()
+            )
+            warnembed.add_field(name='Reason', value="Rule {}".format(response))
+            warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
         await self.client.send_message(user, embed=warnembed)
 
     @rate_limited(10, 3)
