@@ -185,16 +185,6 @@ Reason 1: Being British```
             warnings_plural = ""
         else:
             warnings_plural = "s"
-        warnedstaff = discord.Embed(
-        title="Warned",
-        type='rich',
-        description="Done! {} has been warned".format(user),
-        colour=discord.Colour.green()
-        )
-        warnedstaff.add_field(name='Reason', value='```{}```'.format(response))
-        warnedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
-        warnedstaff.add_field(name='User ID', value="```{}```".format(user.id))
-        await self.client.send_message(discord.Object(id=config.logs_id), embed=warnedstaff)
         if msgType > 1:
             warnembed = discord.Embed(
             title="WARNING",
@@ -204,6 +194,16 @@ Reason 1: Being British```
             )
             warnembed.add_field(name='Reason', value=response)
             warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+
+            warnedstaff = discord.Embed(
+            title="Warned",
+            type='rich',
+            description="Done! {} has been warned".format(user),
+            colour=discord.Colour.green()
+            )
+            warnedstaff.add_field(name='Reason', value='```{}```'.format(response))
+            warnedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+            warnedstaff.add_field(name='User ID', value="```{}```".format(user.id))
         else:
             warnembed = discord.Embed(
             title="WARNING",
@@ -213,6 +213,17 @@ Reason 1: Being British```
             )
             warnembed.add_field(name='Reason', value="Rule {}".format(response))
             warnembed.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+
+            warnedstaff = discord.Embed(
+            title="Warned",
+            type='rich',
+            description="Done! {} has been warned".format(user),
+            colour=discord.Colour.green()
+            )
+            warnedstaff.add_field(name='Reason', value='```{}```'.format(config.rules[resp]))
+            warnedstaff.add_field(name='Total Warnings', value="{} warning{}!".format(str(infractions), warnings_plural))
+            warnedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=warnedstaff)
         await self.client.send_message(user, embed=warnembed)
 
     @rate_limited(10, 3)
