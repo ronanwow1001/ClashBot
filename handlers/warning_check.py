@@ -14,19 +14,19 @@ class WarningCheck():
             twowarnings = discord.Embed(
             title="Heads up",
             type='rich',
-            description="This is <@{}> second warning. You might want to kick them".format(mentioned_user_id),
+            description="This is <@{}> fourth warning. You might want to kick them".format(mentioned_user_id),
             colour=discord.Colour.orange()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=twowarnings)
-        elif self.count == 7:
+        elif self.count == 5:
             threewarnings = discord.Embed(
             title="Heads up",
             type='rich',
-            description="User <@{}> currently has Three warnings. You might want to ban them".format(mentioned_user_id),
+            description="User <@{}> currently has five warnings. You might want to ban them".format(mentioned_user_id),
             colour=discord.Colour.red()
             )
             await self.client.send_message(discord.Object(id=config.logs_id), embed=threewarnings)
-        elif self.count > 7:
+        elif self.count > 5:
             morewarnings = discord.Embed(
             title="Heads up",
             type='rich',
