@@ -319,17 +319,20 @@ def get_kicks_text(userid: int) -> str:
 
 def get_bans_text(userid: int) -> str:
     try:
-        tmp = int(db["bans"][str(userid)]["count"])
+        count = int(db["bans"][str(userid)]["count"])
+        u_count = int(db["bans"][str(userid)]["u_count"])
     except:
         # throws exception when it's not there.
         return 'No warnings'
     mystr = 'Log:'
-    for i in range(tmp):
+    for i in range(count):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["bans"][str(userid)]["reason" + str(i)]
-    for i in range(tmp):
-        i += 1
-        mystr += '\nUnban ' + str(i) + ': ' + db["bans"][str(userid)]["unban" + str(i)]
+
+    for j in range(u_count):
+        j += 1
+        mystr += '\nUnban ' + str(j) + ': ' + db["bans"][str(userid)]["unban" + str(j)]
+
     return mystr
 
 
