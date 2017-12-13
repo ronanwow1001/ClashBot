@@ -242,6 +242,7 @@ def add_unban(userid: int, warning: str):
         print(traceback.format_exc())
         db["bans"][str(userid)]["count"] = 0
         infractions = db["bans"][str(userid)]["count"]
+    infractions += 1
     db["bans"][str(userid)]["count"] = infractions
     # Set warning reason
     # Kind of hacky but it's a database limitation.

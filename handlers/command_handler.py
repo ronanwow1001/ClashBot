@@ -364,8 +364,6 @@ Reason 1: Being British```
         response = 'Unbanned by {}'.format(message.author)
 
         db.add_unban(user.id, response)
-        user_object = self.client.get_user_info(user.id)
-        print (user_object)
 
         embdstaff = discord.Embed(
         title="Unbanned",
@@ -377,7 +375,7 @@ Reason 1: Being British```
         embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
-        await self.client.unban(server, user_object)
+        await self.client.unban(server, self.client.get_user_info(user.id))
 
 
     @rate_limited(10, 3)
