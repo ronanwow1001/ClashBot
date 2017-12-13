@@ -607,7 +607,7 @@ Reason 1: Being British```
 
         con = self._delete_first_word(message.content)
         user_id = str((con).split()[0])
-        user = await self.client.get_user_info(user_id)
+        user = await self.client.get_member(user_id)
 
         w_infractions = db.get_warning_count(user_id)
         k_infractions = db.get_kicks_count(user_id)
