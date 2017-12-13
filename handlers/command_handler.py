@@ -231,6 +231,7 @@ Reason 1: Being British```
         await self.client.send_message(discord.Object(id=config.logs_id), embed=kickedstaff)
         try:
             await self.client.send_message(user, embed=kickedembed)
+            await self.client.kick(user)
         except:
             await self.client.kick(user)
 
