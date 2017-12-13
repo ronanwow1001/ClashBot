@@ -455,7 +455,8 @@ Reason 1: Being British```
             await self.client.send_message(message.channel, 'Please (only) mention one user!')
             return
         user = message.mentions[0]
-        infractions = db.get_warning_count(user.id)
+        w_infractions = db.get_warning_count(user.id)
+        k_infractions = db.get_kicks_count(user.id)
         links = db.get_link_infractions(user.id)
         get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
@@ -463,7 +464,11 @@ Reason 1: Being British```
                 limiting_message = "**YES**"
             else:
                 limiting_message = "**NO**"
-        if infractions == 1:
+        if k_infractions == 1:
+            kicks_plural = ""
+        else:
+            kicks_plural = "s"
+        if w_infractions == 1:
             warnings_plural = ""
         else:
             warnings_plural = "s"
@@ -477,7 +482,8 @@ Reason 1: Being British```
             description='Info for the user {}'.format(user),
             colour=discord.Colour.orange()
         )
-        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(infractions), warnings_plural, db.get_warnings_text(user.id)))
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
+        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
