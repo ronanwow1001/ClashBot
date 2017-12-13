@@ -373,7 +373,7 @@ Reason 1: Being British```
         description="Done! {} has been unbanned from the server".format(user),
         colour=discord.Colour.green()
         )
-        embdstaff.add_field(name='Reason', value='```{}```'.format(reason)
+        embdstaff.add_field(name='Reason', value='```{}```'.format(reason))
         embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
