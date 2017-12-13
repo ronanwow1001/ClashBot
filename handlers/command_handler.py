@@ -371,7 +371,7 @@ Reason 1: Being British```
         embdstaff = discord.Embed(
         title="Unbanned",
         type='rich',
-        description="Done! {} has been unbanned from the server".format(user),
+        description="Done! User with id: {} has been unbanned from the server".format(user_id),
         colour=discord.Colour.green()
         )
         embdstaff.add_field(name='Reason', value='```{}```'.format(reason))
