@@ -53,6 +53,9 @@ class CommandHandler():
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
             return True
+        if message.content.lower().startswith(config.command_prefix + 'unban'):
+            await self.command_unban(message)
+            return True
         if message.content.lower().startswith(config.command_prefix + 'ban'):
             await self.command_ban(message)
             return True
@@ -340,6 +343,41 @@ Reason 1: Being British```
             await self.client.ban(user, d_delete)
         except:
             await self.client.ban(user, d_delete)
+
+    @rate_limited(10, 3)
+    async def command_unban(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        server = message.server
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+        reason = self._delete_first_two_words(message.content)
+        response = 'Unbanned by {}'.format(message.author)
+
+        db.add_unban(user.id, response)
+        user_object = self.client.get_user_info(user.id)
+        print user_object
+
+        embdstaff = discord.Embed(
+        title="Unbanned",
+        type='rich',
+        description="Done! {} has been unbanned from the server".format(user),
+        colour=discord.Colour.green()
+        )
+        embdstaff.add_field(name='Reason', value='```{}```'.format(reason)
+        embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
+
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
+        await self.client.unban(server, user_object)
 
 
     @rate_limited(10, 3)
