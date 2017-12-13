@@ -13,6 +13,7 @@ from ratelimit import rate_limited
 import typehelper
 import blacklist
 from handlers.warning_check import WarningCheck
+from handlers.kicks_check import KickCheck
 
 class CommandHandler():
     def __init__(self, client):
@@ -42,6 +43,9 @@ class CommandHandler():
             return False
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'kick'):
+            await self.command_kick(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'warn'):
             await self.command_warn(message)
@@ -149,6 +153,87 @@ Reason 1: Being British```
         # assuming we're in the immortal auto-restart hypervisor (https://immortal.run)
         os._exit(0)
 
+    @rate_limited(10, 3)
+    async def command_kick(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please specify the type!')
+            return
+        if len(message.content.split()) < 4:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+        msgType = int(self._delete_first_two_words(message.content)[0])
+        response = self._delete_first_three_words(message.content)
+        if (msgType == 1):
+            if (isinstance(response, int) == True):
+                if (response <= len(config.rules)):
+                    msgType = msgType
+                else:
+                    msgType = 2
+            resp = int(response) - 1
+
+        db.add_kick(user.id, response)
+        await KickCheck(self.client).check_kicks(user.id)
+        infractions = db.get_kicks_count(user.id)
+
+        if infractions == 1:
+            kicks_plural = ""
+        else:
+            kicks_plural = "s"
+
+        if msgType > 1:
+            kickedembed = discord.Embed(
+            title="NOTICE",
+            type='rich',
+            description="You have been kicked from the Corporate Clash discord.\nPlease read the rules: <#{}>".format(config.rules_id),
+            colour=discord.Colour.red()
+            )
+            kickedembed.add_field(name='Reason', value=response)
+            kickedembed.add_field(name='Total Kicks', value="{}".format(str(infractions)))
+
+            kickedstaff = discord.Embed(
+            title="Kicked",
+            type='rich',
+            description="Done! {} has been kicked from the server".format(user),
+            colour=discord.Colour.green()
+            )
+            kickedstaff.add_field(name='Reason', value='```{}```'.format(response))
+            kickedstaff.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        else:
+            kickedembed = discord.Embed(
+            title="NOTICE",
+            type='rich',
+            description='You have been kicked from the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
+            colour=discord.Colour.red()
+            )
+            kickedembed.add_field(name='Reason', value="Rule {}".format(response))
+            kickedembed.add_field(name='Total Kicks', value="{}".format(str(infractions)))
+
+            kickedstaff = discord.Embed(
+            title="Kicked",
+            type='rich',
+            description="Done! {} has been kicked from the server".format(user),
+            colour=discord.Colour.green()
+            )
+            kickedstaff.add_field(name='Reason', value='```{}```'.format(config.rules[resp]))
+            kickedstaff.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=kickedstaff)
+        try:
+            await self.client.send_message(user, embed=kickedembed)
+            await self.client.kick(user)
+        except:
+            await self.client.kick(user)
 
 
     @rate_limited(10, 3)
@@ -370,7 +455,8 @@ Reason 1: Being British```
             await self.client.send_message(message.channel, 'Please (only) mention one user!')
             return
         user = message.mentions[0]
-        infractions = db.get_warning_count(user.id)
+        w_infractions = db.get_warning_count(user.id)
+        k_infractions = db.get_kicks_count(user.id)
         links = db.get_link_infractions(user.id)
         get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
@@ -378,7 +464,11 @@ Reason 1: Being British```
                 limiting_message = "**YES**"
             else:
                 limiting_message = "**NO**"
-        if infractions == 1:
+        if k_infractions == 1:
+            kicks_plural = ""
+        else:
+            kicks_plural = "s"
+        if w_infractions == 1:
             warnings_plural = ""
         else:
             warnings_plural = "s"
@@ -392,7 +482,8 @@ Reason 1: Being British```
             description='Info for the user {}'.format(user),
             colour=discord.Colour.orange()
         )
-        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(infractions), warnings_plural, db.get_warnings_text(user.id)))
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
+        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)

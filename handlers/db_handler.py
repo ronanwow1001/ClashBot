@@ -30,6 +30,11 @@ def verify_sections():
         print('Startup: implementing warnings')
         db['warnings'] = {}
     try:
+        tmp = db['kicks']
+    except:
+        print('Startup: implementing kicks')
+        db['kicks'] = {}
+    try:
         tmp = db['bot-warnings']
     except:
         print('Startup: implementing bot-warnings')
@@ -168,6 +173,31 @@ def add_warning(userid: int, warning: str):
         print(traceback.format_exc())
     db.write()
 
+def add_kick(userid: int, warning: str):
+    warning = warning.encode('ascii', 'replace').decode()
+    # Ensure their sub-section exists
+    try:
+        tmp = db["kicks"][str(userid)]
+    except:
+        db["kicks"][str(userid)] = {}
+    # Get/create infraction count
+    try:
+        infractions = int(db["kicks"][str(userid)]["count"])
+    except:
+        print(traceback.format_exc())
+        db["kicks"][str(userid)]["count"] = 0
+        infractions = db["kicks"][str(userid)]["count"]
+    infractions += 1
+    db["kicks"][str(userid)]["count"] = infractions
+    # Set warning reason
+    # Kind of hacky but it's a database limitation.
+    try:
+        db["kicks"][str(userid)]["reason" + str(infractions)] = warning
+    except:
+        print('UNEXPECTED: exception when defining a new exception')
+        print(traceback.format_exc())
+    db.write()
+
 def add_bot_warning(bot_warning: str):
     bot_warning = bot_warning.encode('ascii', 'replace').decode()
     try:
@@ -194,6 +224,13 @@ def get_warning_count(userid: int) -> int:
     except:
         return 0
 
+def get_kicks_count(userid: int) -> int:
+    try:
+        tmp = db["kicks"][str(userid)]["count"]
+        return int(tmp)
+    except:
+        return 0
+
 
 def get_warnings_text(userid: int) -> str:
     try:
@@ -205,6 +242,18 @@ def get_warnings_text(userid: int) -> str:
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["warnings"][str(userid)]["reason" + str(i)]
+    return mystr
+
+def get_kicks_text(userid: int) -> str:
+    try:
+        tmp = int(db["kicks"][str(userid)]["count"])
+    except:
+        # throws exception when it's not there.
+        return 'No warnings'
+    mystr = 'Reasons:'
+    for i in range(tmp):
+        i += 1
+        mystr += '\nReason ' + str(i) + ': ' + db["kicks"][str(userid)]["reason" + str(i)]
     return mystr
 
 
