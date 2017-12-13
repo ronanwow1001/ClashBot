@@ -606,8 +606,10 @@ Reason 1: Being British```
             return
 
         con = self._delete_first_word(message.content)
+        server_id = str(message.server.id)
+        server = discord.Server(id=server_id)
         user_id = str((con).split()[0])
-        user = await self.client.get_member(user_id)
+        user = await server.get_member(user_id)
 
         w_infractions = db.get_warning_count(user_id)
         k_infractions = db.get_kicks_count(user_id)
