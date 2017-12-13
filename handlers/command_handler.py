@@ -359,7 +359,8 @@ Reason 1: Being British```
 
         con = self._delete_first_word(message.content)
         user_id = str((con).split()[0])
-        server = message.server
+        server_id = str(message.server.id)
+        server = discord.Server(id=server_id)
         print (server)
 
         if len(message.content.split()) < 3:
