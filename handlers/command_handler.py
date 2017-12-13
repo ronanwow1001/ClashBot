@@ -352,18 +352,21 @@ Reason 1: Being British```
                 cont = True
         if not cont:
             return
-        if len(message.mentions) != 1:
-            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+
+        if len(message.content.split()) < 2:
+            await self.client.send_message(message.channel, 'Please include the user\'s id!')
             return
-        user = message.mentions[0]
-        server = message.server
+
+        user_id = self._delete_first_word(message.content)
+
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
             return
+
         reason = self._delete_first_two_words(message.content)
         response = 'Unbanned by {}'.format(message.author)
 
-        db.add_unban(user.id, response)
+        db.add_unban(user_id, response)
 
         embdstaff = discord.Embed(
         title="Unbanned",
@@ -372,10 +375,10 @@ Reason 1: Being British```
         colour=discord.Colour.green()
         )
         embdstaff.add_field(name='Reason', value='```{}```'.format(reason))
-        embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        embdstaff.add_field(name='User ID', value="```{}```".format(user_id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
-        await self.client.unban(server, self.client.get_user_info(user.id))
+        await self.client.unban(server, self.client.get_user_info(str(user_id)))
 
 
     @rate_limited(10, 3)
