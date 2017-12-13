@@ -35,6 +35,11 @@ def verify_sections():
         print('Startup: implementing kicks')
         db['kicks'] = {}
     try:
+        tmp = db['bans']
+    except:
+        print('Startup: implementing bans')
+        db['bans'] = {}
+    try:
         tmp = db['bot-warnings']
     except:
         print('Startup: implementing bot-warnings')
@@ -198,6 +203,31 @@ def add_kick(userid: int, warning: str):
         print(traceback.format_exc())
     db.write()
 
+def add_ban(userid: int, warning: str):
+    warning = warning.encode('ascii', 'replace').decode()
+    # Ensure their sub-section exists
+    try:
+        tmp = db["bans"][str(userid)]
+    except:
+        db["bans"][str(userid)] = {}
+    # Get/create infraction count
+    try:
+        infractions = int(db["bans"][str(userid)]["count"])
+    except:
+        print(traceback.format_exc())
+        db["bans"][str(userid)]["count"] = 0
+        infractions = db["bans"][str(userid)]["count"]
+    infractions += 1
+    db["bans"][str(userid)]["count"] = infractions
+    # Set warning reason
+    # Kind of hacky but it's a database limitation.
+    try:
+        db["bans"][str(userid)]["reason" + str(infractions)] = warning
+    except:
+        print('UNEXPECTED: exception when defining a new exception')
+        print(traceback.format_exc())
+    db.write()
+
 def add_bot_warning(bot_warning: str):
     bot_warning = bot_warning.encode('ascii', 'replace').decode()
     try:
@@ -231,6 +261,12 @@ def get_kicks_count(userid: int) -> int:
     except:
         return 0
 
+def get_bans_count(userid: int) -> int:
+    try:
+        tmp = db["bans"][str(userid)]["count"]
+        return int(tmp)
+    except:
+        return 0
 
 def get_warnings_text(userid: int) -> str:
     try:
