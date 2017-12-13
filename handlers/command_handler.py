@@ -564,6 +564,7 @@ Reason 1: Being British```
         user = message.mentions[0]
         w_infractions = db.get_warning_count(user.id)
         k_infractions = db.get_kicks_count(user.id)
+        b_infractions = db.get_bans_count(user.id)
         links = db.get_link_infractions(user.id)
         get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
@@ -571,6 +572,10 @@ Reason 1: Being British```
                 limiting_message = "**YES**"
             else:
                 limiting_message = "**NO**"
+        if b_infractions == 1:
+            bans_plural = ""
+        else:
+            bans_plural = "s"
         if k_infractions == 1:
             kicks_plural = ""
         else:
@@ -591,6 +596,7 @@ Reason 1: Being British```
         )
         userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
         userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
+        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user.id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
