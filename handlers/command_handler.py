@@ -14,6 +14,7 @@ import typehelper
 import blacklist
 from handlers.warning_check import WarningCheck
 from handlers.kicks_check import KickCheck
+from handlers.bans_check import BanCheck
 
 class CommandHandler():
     def __init__(self, client):
@@ -37,12 +38,23 @@ class CommandHandler():
         s.pop(0)
         return " ".join(s)
 
+    def _delete_first_four_words(self, phrase: str) -> str:
+        s = phrase.split()
+        s.pop(0)
+        s.pop(0)
+        s.pop(0)
+        s.pop(0)
+        return " ".join(s)
+
     # Return true to tell it to not handle anything after
     async def on_message(self, message):
         if message.author.bot:
             return False
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'ban'):
+            await self.command_ban(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'kick'):
             await self.command_kick(message)
@@ -234,6 +246,100 @@ Reason 1: Being British```
             await self.client.kick(user)
         except:
             await self.client.kick(user)
+
+    @rate_limited(10, 3)
+    async def command_ban(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please specify the type!')
+            return
+        if len(message.content.split()) < 4:
+            await self.client.send_message(message.channel, 'Please specify the number of days worth of messages to delete from the user in the server!')
+            return
+        if len(message.content.split()) < 5:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+        msgType = int(self._delete_first_two_words(message.content)[0])
+        d_delete = int(self._delete_first_three_words(message.content)[0])
+        response = self._delete_first_four_words(message.content)
+
+        if (d_delete <= 0):
+            d_delete = 0
+        elif (d_delete >= 7):
+            d_delete = 7
+        else:
+            d_delete = d_delete
+
+        if (msgType == 1):
+            if (isinstance(response, int) == True):
+                if (response <= len(config.rules)):
+                    msgType = msgType
+                else:
+                    msgType = 2
+            resp = int(response) - 1
+
+        db.add_ban(user.id, response)
+        await BanCheck(self.client).check_bans(user.id)
+        infractions = db.get_bans_count(user.id)
+
+        if infractions == 1:
+            bans_plural = ""
+        else:
+            bans_plural = "s"
+
+        if msgType > 1:
+            embd = discord.Embed(
+            title="BAN",
+            type='rich',
+            description="You have been banned from the Corporate Clash discord because of repeated infractions to our policy.\nPlease read the rules: <#{}>".format(config.rules_id),
+            colour=discord.Colour.red()
+            )
+            embd.add_field(name='Reason', value=response)
+            embd.add_field(name='Total Bans', value="{}".format(str(infractions)))
+
+            embdstaff = discord.Embed(
+            title="Banned",
+            type='rich',
+            description="Done! {} has been banned from the server, the last {} days of their messages have been removed".format(user, d_delete),
+            colour=discord.Colour.green()
+            )
+            embdstaff.add_field(name='Reason', value='```{}```'.format(response))
+            embdstaff.add_field(name='Total Bans', value="{} ban{}!".format(str(infractions), bans_plural))
+            embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        else:
+            embd = discord.Embed(
+            title="BAN",
+            type='rich',
+            description='You have been banned from the Corporate Clash discord because of repeated infractions to our policy, your latest being rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
+            colour=discord.Colour.red()
+            )
+            embd.add_field(name='Reason', value="Rule {}".format(response))
+            embd.add_field(name='Total Bans', value="{}".format(str(infractions)))
+
+            embdstaff = discord.Embed(
+            title="Banned",
+            type='rich',
+            description="Done! {} has been banned from the server, the last {} days of their messages have been removed".format(user, d_delete),
+            colour=discord.Colour.green()
+            )
+            embdstaff.add_field(name='Reason', value='```Rule {}```'.format(config.rules[resp]))
+            embdstaff.add_field(name='Total Bans', value="{} ban{}!".format(str(infractions), bans_plural))
+            embdstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
+        try:
+            await self.client.send_message(user, embed=embd)
+            await self.client.ban(user, d_delete)
+        except:
+            await self.client.ban(user, d_delete)
 
 
     @rate_limited(10, 3)
@@ -457,6 +563,7 @@ Reason 1: Being British```
         user = message.mentions[0]
         w_infractions = db.get_warning_count(user.id)
         k_infractions = db.get_kicks_count(user.id)
+        b_infractions = db.get_bans_count(user.id)
         links = db.get_link_infractions(user.id)
         get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
@@ -464,6 +571,10 @@ Reason 1: Being British```
                 limiting_message = "**YES**"
             else:
                 limiting_message = "**NO**"
+        if b_infractions == 1:
+            bans_plural = ""
+        else:
+            bans_plural = "s"
         if k_infractions == 1:
             kicks_plural = ""
         else:
@@ -484,6 +595,7 @@ Reason 1: Being British```
         )
         userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
         userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
+        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user.id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
