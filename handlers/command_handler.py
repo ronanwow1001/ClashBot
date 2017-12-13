@@ -365,7 +365,7 @@ Reason 1: Being British```
 
         db.add_unban(user.id, response)
         user_object = self.client.get_user_info(user.id)
-        print user_object
+        print (user_object)
 
         embdstaff = discord.Embed(
         title="Unbanned",
