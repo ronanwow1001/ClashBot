@@ -229,8 +229,10 @@ Reason 1: Being British```
             kickedstaff.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
             kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
         await self.client.send_message(discord.Object(id=config.logs_id), embed=kickedstaff)
-        await self.client.send_message(user, embed=kickedembed)
-        await self.client.kick(user)
+        try:
+            await self.client.send_message(user, embed=kickedembed)
+        except:
+            await self.client.kick(user)
 
 
     @rate_limited(10, 3)
