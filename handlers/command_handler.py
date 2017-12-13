@@ -309,7 +309,7 @@ Reason 1: Being British```
             embdstaff = discord.Embed(
             title="Banned",
             type='rich',
-            description="Done! {} has been banned from the server, {} of their messages have been removed".format(user, d_delete),
+            description="Done! {} has been banned from the server, the last {} days of their messages have been removed".format(user, d_delete),
             colour=discord.Colour.green()
             )
             embdstaff.add_field(name='Reason', value='```{}```'.format(response))
@@ -328,7 +328,7 @@ Reason 1: Being British```
             embdstaff = discord.Embed(
             title="Banned",
             type='rich',
-            description="Done! {} has been banned from the server, {} of their messages have been removed".format(user, d_delete),
+            description="Done! {} has been banned from the server, the last {} days of their messages have been removed".format(user, d_delete),
             colour=discord.Colour.green()
             )
             embdstaff.add_field(name='Reason', value='```Rule {}```'.format(config.rules[resp]))
