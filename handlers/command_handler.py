@@ -600,14 +600,19 @@ Reason 1: Being British```
                 cont = True
         if not cont:
             return
-        if len(message.mentions) != 1:
-            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+
+        if len(message.content.split()) < 2:
+            await self.client.send_message(message.channel, 'Please include the user\'s id!')
             return
-        user = message.mentions[0]
-        w_infractions = db.get_warning_count(user.id)
-        k_infractions = db.get_kicks_count(user.id)
-        b_infractions = db.get_bans_count(user.id)
-        links = db.get_link_infractions(user.id)
+
+        con = self._delete_first_word(message.content)
+        user_id = str((con).split()[0])
+        user = await self.client.get_user_info(user_id)
+
+        w_infractions = db.get_warning_count(user_id)
+        k_infractions = db.get_kicks_count(user_id)
+        b_infractions = db.get_bans_count(user_id)
+        links = db.get_link_infractions(user_id)
         get_users_roles = [role.name for role in user.roles]
         for role in message.author.roles:
             if config.limiting_role in get_users_roles:
@@ -631,7 +636,7 @@ Reason 1: Being British```
         else:
             links_plural = "s"
         userembed = discord.Embed(
-            title='@{}'.format(user),
+            title='<@{}>'.format(user_id),
             type='rich',
             description='Info for the user {}'.format(user),
             colour=discord.Colour.orange()
