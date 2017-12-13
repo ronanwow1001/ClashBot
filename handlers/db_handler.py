@@ -30,6 +30,11 @@ def verify_sections():
         print('Startup: implementing warnings')
         db['warnings'] = {}
     try:
+        tmp = db['kicks']
+    except:
+        print('Startup: implementing kicks')
+        db['kicks'] = {}
+    try:
         tmp = db['bot-warnings']
     except:
         print('Startup: implementing bot-warnings')
