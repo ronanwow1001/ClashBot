@@ -13,6 +13,7 @@ from ratelimit import rate_limited
 import typehelper
 import blacklist
 from handlers.warning_check import WarningCheck
+from handlers.kicks_check import KickCheck
 
 class CommandHandler():
     def __init__(self, client):
@@ -42,6 +43,9 @@ class CommandHandler():
             return False
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
+            return True
+        if message.content.lower().startswith(config.command_prefix + 'kick'):
+            await self.command_kick(message)
             return True
         if message.content.lower().startswith(config.command_prefix + 'warn'):
             await self.command_warn(message)
@@ -149,6 +153,83 @@ Reason 1: Being British```
         # assuming we're in the immortal auto-restart hypervisor (https://immortal.run)
         os._exit(0)
 
+    @rate_limited(10, 3)
+    async def command_kick(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+        if len(message.mentions) != 1:
+            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+            return
+        user = message.mentions[0]
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please specify the type!')
+            return
+        if len(message.content.split()) < 4:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+        msgType = int(self._delete_first_two_words(message.content)[0])
+        response = self._delete_first_three_words(message.content)
+        if (msgType == 1):
+            if (isinstance(response, int) == True):
+                if (response <= len(config.rules)):
+                    msgType = msgType
+                else:
+                    msgType = 2
+            resp = int(response) - 1
+
+        db.add_kick(user.id, response)
+        await KickCheck(self.client).check_kicks(user.id)
+        infractions = db.get_kicks_count(user.id)
+
+        if infractions == 1:
+            kicks_plural = ""
+        else:
+            kicks_plural = "s"
+
+        if msgType > 1:
+            kickedembed = discord.Embed(
+            title="NOTICE",
+            type='rich',
+            description="You have been kicked from the Corporate Clash discord.\nPlease read the rules: <#{}>".format(config.rules_id),
+            colour=discord.Colour.red()
+            )
+            kickedembed.add_field(name='Reason', value=response)
+            kickedembed.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+
+            kickedstaff = discord.Embed(
+            title="Kicked",
+            type='rich',
+            description="Done! {} has been kicked from the server".format(user),
+            colour=discord.Colour.green()
+            )
+            kickedstaff.add_field(name='Reason', value='```{}```'.format(response))
+            kickedstaff.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        else:
+            kickedembed = discord.Embed(
+            title="WARNING",
+            type='rich',
+            description='You have been kicked from the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
+            colour=discord.Colour.red()
+            )
+            kickedembed.add_field(name='Reason', value="Rule {}".format(response))
+            kickedembed.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+
+            kickedstaff = discord.Embed(
+            title="Warned",
+            type='rich',
+            description="Done! {} has been kicked from the server".format(user),
+            colour=discord.Colour.green()
+            )
+            kickedstaff.add_field(name='Reason', value='```{}```'.format(config.rules[resp]))
+            kickedstaff.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=kickedstaff)
+        await self.client.send_message(user, embed=kickedembed)
 
 
     @rate_limited(10, 3)
