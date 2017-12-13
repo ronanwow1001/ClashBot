@@ -237,17 +237,17 @@ def add_unban(userid: int, warning: str):
         db["bans"][str(userid)] = {}
     # Get/create infraction count
     try:
-        infractions = int(db["bans"][str(userid)]["count"])
+        infractions = int(db["bans"][str(userid)]["u_count"])
     except:
         print(traceback.format_exc())
-        db["bans"][str(userid)]["count"] = 0
-        infractions = db["bans"][str(userid)]["count"]
+        db["bans"][str(userid)]["u_count"] = 0
+        infractions = db["bans"][str(userid)]["u_count"]
     infractions += 1
-    db["bans"][str(userid)]["count"] = infractions
+    db["bans"][str(userid)]["u_count"] = infractions
     # Set warning reason
     # Kind of hacky but it's a database limitation.
     try:
-        db["bans"][str(userid)]["reason" + str(infractions)] = warning
+        db["bans"][str(userid)]["unban" + str(infractions)] = warning
     except:
         print('UNEXPECTED: exception when defining a new exception')
         print(traceback.format_exc())
@@ -327,6 +327,9 @@ def get_bans_text(userid: int) -> str:
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["bans"][str(userid)]["reason" + str(i)]
+    for i in range(tmp):
+        i += 1
+        mystr += '\nUnban ' + str(i) + ': ' + db["bans"][str(userid)]["unban" + str(i)]
     return mystr
 
 
