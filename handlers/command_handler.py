@@ -359,15 +359,14 @@ Reason 1: Being British```
 
         con = self._delete_first_word(message.content)
         user_id = str((con).split()[0])
-        print (user_id)
         server = message.server
+        print (server)
 
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
             return
 
         reason = str((con).split()[1])
-        print (reason)
         response = 'Unbanned by {}'.format(message.author)
 
         db.add_unban(user_id, response)
@@ -382,7 +381,7 @@ Reason 1: Being British```
         embdstaff.add_field(name='User ID', value="```{}```".format(user_id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
-        await self.client.unban(server, self.client.get_user_info(str(user_id)))
+        await self.client.unban(server, self.client.get_user_info(user_id))
 
 
     @rate_limited(10, 3)
