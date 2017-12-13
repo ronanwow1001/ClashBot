@@ -357,7 +357,8 @@ Reason 1: Being British```
             await self.client.send_message(message.channel, 'Please include the user\'s id!')
             return
 
-        user_id = self._delete_first_word(message.content)
+        user_id = self._delete_first_word(message.content)[0]
+        server = message.server
 
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
