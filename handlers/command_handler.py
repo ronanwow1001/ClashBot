@@ -309,7 +309,7 @@ Reason 1: Being British```
             embdstaff = discord.Embed(
             title="Banned",
             type='rich',
-            description="Done! {} has been banned from the server".format(user),
+            description="Done! {} has been banned from the server, {} of their messages have been removed".format(user, d_delete),
             colour=discord.Colour.green()
             )
             embdstaff.add_field(name='Reason', value='```{}```'.format(response))
@@ -328,7 +328,7 @@ Reason 1: Being British```
             embdstaff = discord.Embed(
             title="Banned",
             type='rich',
-            description="Done! {} has been banned from the server".format(user),
+            description="Done! {} has been banned from the server, {} of their messages have been removed".format(user, d_delete),
             colour=discord.Colour.green()
             )
             embdstaff.add_field(name='Reason', value='```Rule {}```'.format(config.rules[resp]))
@@ -337,10 +337,9 @@ Reason 1: Being British```
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
         try:
             await self.client.send_message(user, embed=embd)
-            #await self.client.ban(user)
+            await self.client.ban(user, d_delete)
         except:
-            pass
-            #await self.client.ban(user)
+            await self.client.ban(user, d_delete)
 
 
     @rate_limited(10, 3)
