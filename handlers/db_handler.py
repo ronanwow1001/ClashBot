@@ -299,7 +299,7 @@ def get_warnings_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["warnings"][str(userid)]["reason" + str(i)]
@@ -311,7 +311,7 @@ def get_kicks_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["kicks"][str(userid)]["reason" + str(i)]
@@ -323,7 +323,7 @@ def get_bans_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["bans"][str(userid)]["reason" + str(i)]

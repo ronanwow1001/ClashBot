@@ -368,7 +368,7 @@ Reason 1: Being British```
             return
 
         reason = str((con).split()[1])
-        response = 'Unbanned by {}'.format(message.author)
+        response = 'by {}'.format(message.author)
 
         db.add_unban(user_id, response)
 
