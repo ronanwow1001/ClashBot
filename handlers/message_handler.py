@@ -53,11 +53,12 @@ class MessageHandler():
         if self.extractor.has_urls(message.content.replace('`', '')):
             for word in message.content.split():
                 word = word.replace('`', '')
-                end_message_url = word
                 # set a variable so nested foreach's can choose to not delete message
                 should_stop = False
                 if not self.extractor.has_urls(word):
                     continue
+                else:
+                    end_message_url = word
                 sub, sld, tld = tldextract.extract(word)
                 if sld.lower() + '.' + tld.lower() in config.allowed_domains:
                     continue
