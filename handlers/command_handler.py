@@ -361,7 +361,6 @@ Reason 1: Being British```
         user_id = str((con).split()[0])
         server_id = str(message.server.id)
         server = discord.Server(id=server_id)
-        print (server)
 
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
