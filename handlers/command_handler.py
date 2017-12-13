@@ -381,7 +381,7 @@ Reason 1: Being British```
         embdstaff.add_field(name='User ID', value="```{}```".format(user_id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
-        await self.client.unban(server, self.client.get_user_info(user_id))
+        await self.client.unban(server, self.client.get_user(user_id))
 
 
     @rate_limited(10, 3)
