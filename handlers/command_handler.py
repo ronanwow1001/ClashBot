@@ -53,6 +53,9 @@ class CommandHandler():
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
             return True
+        if message.content.lower().startswith(config.command_prefix + 'unban'):
+            await self.command_unban(message)
+            return True
         if message.content.lower().startswith(config.command_prefix + 'ban'):
             await self.command_ban(message)
             return True
@@ -340,6 +343,46 @@ Reason 1: Being British```
             await self.client.ban(user, d_delete)
         except:
             await self.client.ban(user, d_delete)
+
+    @rate_limited(10, 3)
+    async def command_unban(self, message):
+        cont = False
+        for role in message.author.roles:
+            if role.name.lower() in config.warn_command_allowed_roles:
+                cont = True
+        if not cont:
+            return
+
+        if len(message.content.split()) < 2:
+            await self.client.send_message(message.channel, 'Please include the user\'s id!')
+            return
+
+        con = self._delete_first_word(message.content)
+        user_id = str((con).split()[0])
+        server_id = str(message.server.id)
+        server = discord.Server(id=server_id)
+        user = await self.client.get_user_info(user_id)
+
+        if len(message.content.split()) < 3:
+            await self.client.send_message(message.channel, 'Please include a reason!')
+            return
+
+        reason = str((con).split()[1])
+        response = 'by {}'.format(message.author)
+
+        db.add_unban(user_id, response)
+
+        embdstaff = discord.Embed(
+        title="Unbanned",
+        type='rich',
+        description="Done! User with id: {} has been unbanned from the server by {}".format(user_id, message.author),
+        colour=discord.Colour.green()
+        )
+        embdstaff.add_field(name='Reason', value='```{}```'.format(reason))
+        embdstaff.add_field(name='User ID', value="```{}```".format(user_id))
+
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
+        await self.client.unban(server, user)
 
 
     @rate_limited(10, 3)

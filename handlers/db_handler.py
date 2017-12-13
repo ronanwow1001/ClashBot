@@ -228,6 +228,31 @@ def add_ban(userid: int, warning: str):
         print(traceback.format_exc())
     db.write()
 
+def add_unban(userid: int, warning: str):
+    warning = warning.encode('ascii', 'replace').decode()
+    # Ensure their sub-section exists
+    try:
+        tmp = db["bans"][str(userid)]
+    except:
+        db["bans"][str(userid)] = {}
+    # Get/create infraction count
+    try:
+        infractions = int(db["bans"][str(userid)]["u_count"])
+    except:
+        print(traceback.format_exc())
+        db["bans"][str(userid)]["u_count"] = 0
+        infractions = db["bans"][str(userid)]["u_count"]
+    infractions += 1
+    db["bans"][str(userid)]["u_count"] = infractions
+    # Set warning reason
+    # Kind of hacky but it's a database limitation.
+    try:
+        db["bans"][str(userid)]["unban" + str(infractions)] = warning
+    except:
+        print('UNEXPECTED: exception when defining a new exception')
+        print(traceback.format_exc())
+    db.write()
+
 def add_bot_warning(bot_warning: str):
     bot_warning = bot_warning.encode('ascii', 'replace').decode()
     try:
@@ -274,7 +299,7 @@ def get_warnings_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["warnings"][str(userid)]["reason" + str(i)]
@@ -286,7 +311,7 @@ def get_kicks_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["kicks"][str(userid)]["reason" + str(i)]
@@ -298,10 +323,13 @@ def get_bans_text(userid: int) -> str:
     except:
         # throws exception when it's not there.
         return 'No warnings'
-    mystr = 'Reasons:'
+    mystr = 'Log:'
     for i in range(tmp):
         i += 1
         mystr += '\nReason ' + str(i) + ': ' + db["bans"][str(userid)]["reason" + str(i)]
+    for i in range(tmp):
+        i += 1
+        mystr += '\nUnban ' + str(i) + ': ' + db["bans"][str(userid)]["unban" + str(i)]
     return mystr
 
 
