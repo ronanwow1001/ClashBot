@@ -357,14 +357,17 @@ Reason 1: Being British```
             await self.client.send_message(message.channel, 'Please include the user\'s id!')
             return
 
-        user_id = self._delete_first_word(message.content)[0]
+        con = self._delete_first_word(message.content)
+        user_id = str((con).split()[0])
+        print (user_id)
         server = message.server
 
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
             return
 
-        reason = self._delete_first_two_words(message.content)
+        reason = str((con).split()[1])
+        print (reason)
         response = 'Unbanned by {}'.format(message.author)
 
         db.add_unban(user_id, response)
