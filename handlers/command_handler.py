@@ -269,7 +269,7 @@ Reason 1: Being British```
             await self.client.send_message(message.channel, 'Please include a reason!')
             return
         msgType = int(self._delete_first_two_words(message.content)[0])
-        d_delete = self._delete_first_three_words(message.content)
+        d_delete = int(self._delete_first_three_words(message.content))
         response = self._delete_first_four_words(message.content)
 
         if (d_delete <= 0):
