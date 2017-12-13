@@ -198,7 +198,7 @@ Reason 1: Being British```
             colour=discord.Colour.red()
             )
             kickedembed.add_field(name='Reason', value=response)
-            kickedembed.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedembed.add_field(name='Total Kicks', value="{}".format(str(infractions)))
 
             kickedstaff = discord.Embed(
             title="Kicked",
@@ -211,16 +211,16 @@ Reason 1: Being British```
             kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
         else:
             kickedembed = discord.Embed(
-            title="WARNING",
+            title="NOTICE",
             type='rich',
             description='You have been kicked from the Corporate Clash discord because you\'ve broken rule {}, this rule corresponds to "{}"'.format(response, config.rules[resp]),
             colour=discord.Colour.red()
             )
             kickedembed.add_field(name='Reason', value="Rule {}".format(response))
-            kickedembed.add_field(name='Total Kicks', value="{} kick{}!".format(str(infractions), kicks_plural))
+            kickedembed.add_field(name='Total Kicks', value="{}".format(str(infractions)))
 
             kickedstaff = discord.Embed(
-            title="Warned",
+            title="Kicked",
             type='rich',
             description="Done! {} has been kicked from the server".format(user),
             colour=discord.Colour.green()
@@ -230,6 +230,7 @@ Reason 1: Being British```
             kickedstaff.add_field(name='User ID', value="```{}```".format(user.id))
         await self.client.send_message(discord.Object(id=config.logs_id), embed=kickedstaff)
         await self.client.send_message(user, embed=kickedembed)
+        await self.client.kick(user)
 
 
     @rate_limited(10, 3)
