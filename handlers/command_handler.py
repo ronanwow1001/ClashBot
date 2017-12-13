@@ -361,6 +361,7 @@ Reason 1: Being British```
         user_id = str((con).split()[0])
         server_id = str(message.server.id)
         server = discord.Server(id=server_id)
+        user = await self.client.get_user_info(user_id)
 
         if len(message.content.split()) < 3:
             await self.client.send_message(message.channel, 'Please include a reason!')
@@ -381,7 +382,7 @@ Reason 1: Being British```
         embdstaff.add_field(name='User ID', value="```{}```".format(user_id))
 
         await self.client.send_message(discord.Object(id=config.logs_id), embed=embdstaff)
-        await self.client.unban(server, self.client.get_user(user_id))
+        await self.client.unban(server, user)
 
 
     @rate_limited(10, 3)
