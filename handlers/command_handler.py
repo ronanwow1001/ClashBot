@@ -140,24 +140,21 @@ If you're having trouble locating the "Trusted IP's" section of the website, ple
                 cont = True
         if not cont:
             return
-        me = """```
--=- In The Logs Channel =-=
--Warn @user Reason
 
-Example:
--Warn @Ricky#3642 Being British
+        embd = discord.Embed(
+            title="Commands",
+            type='rich',
+            description="List of commands and their usage",
+            colour=discord.Colour.purple()
+        )
+        embd.add_field(name='Type (<type>)', value="```Use 1 if you're attaching any rule in the <reason> field.``` ```Use 2 if you're attaching a typed explanation in the <reason>field.```".format(config.command_prefix))
+        embd.add_field(name='Warn', value="```{}warn <@user's_id> <type> <reason>``` ```Warn a user with either <type>.```".format(config.command_prefix))
+        embd.add_field(name='Kick', value="```{}kick <@user's_id> <type> <reason>``` ```Kick a user with either <type>.```".format(config.command_prefix))
+        embd.add_field(name='Ban', value="```{}ban <@user's_id> <type> <#_days> <reason>``` ```Ban a user with either <type>, deleting the last <#_days> of their messages in the server.```".format(config.command_prefix))
+        embd.add_field(name='Infraction Lookup', value="```{}id <id>``` ```Displays the data documented for the identified case.```".format(config.command_prefix))
+        embd.add_field(name='User Information', value="```{}user <user's id>``` ```Displays any user's information.```".format(config.command_prefix))
 
--User @user
-
-Example:
--User @Ricky#3642
-
-This would then show:
-This user has 1 warnings!
-Reasons:
-Reason 1: Being British```
-        """
-        await self.client.send_message(message.channel, me)
+        await self.client.send_message(discord.Object(id=config.logs_id), embed=embd)
 
     async def command_reboot(self, message):
         if message.author.id not in config.admins:
@@ -600,20 +597,32 @@ Reason 1: Being British```
                 cont = True
         if not cont:
             return
-        if len(message.mentions) != 1:
-            await self.client.send_message(message.channel, 'Please (only) mention one user!')
+
+        if len(message.content.split()) < 2:
+            await self.client.send_message(message.channel, 'Please include the user\'s id!')
             return
-        user = message.mentions[0]
-        w_infractions = db.get_warning_count(user.id)
-        k_infractions = db.get_kicks_count(user.id)
-        b_infractions = db.get_bans_count(user.id)
-        links = db.get_link_infractions(user.id)
-        get_users_roles = [role.name for role in user.roles]
-        for role in message.author.roles:
-            if config.limiting_role in get_users_roles:
-                limiting_message = "**YES**"
-            else:
-                limiting_message = "**NO**"
+
+        con = self._delete_first_word(message.content)
+        user_id = str((con).split()[0])
+        user = await self.client.get_user_info(user_id)
+
+        w_infractions = db.get_warning_count(user_id)
+        k_infractions = db.get_kicks_count(user_id)
+        b_infractions = db.get_bans_count(user_id)
+        links = db.get_link_infractions(user_id)
+
+        try:
+            get_users_roles = [role.name for role in user.roles]
+            for role in message.author.roles:
+                if config.limiting_role in get_users_roles:
+                    limiting_message = "**YES**"
+                else:
+                    limiting_message = "**NO**"
+        except:
+            # if the user isnt in the guild, they have no (guild) member object,
+            # therefore don't need to be check for roles
+            limiting_message = "**NO**"
+
         if b_infractions == 1:
             bans_plural = ""
         else:
@@ -631,14 +640,14 @@ Reason 1: Being British```
         else:
             links_plural = "s"
         userembed = discord.Embed(
-            title='@{}'.format(user),
+            title='Documented History / Information',
             type='rich',
-            description='Info for the user {}'.format(user),
+            description='Username: {}\nUser ID: {}\nNickname: {}\nDoC: {}\nBot User?: {}'.format(user.name, user.id, user.display_name, user.created_at, user.bot),
             colour=discord.Colour.orange()
         )
-        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
-        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
-        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user.id)))
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user_id)))
+        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user_id)))
+        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user_id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
