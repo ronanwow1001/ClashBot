@@ -643,9 +643,9 @@ Reason 1: Being British```
         else:
             links_plural = "s"
         userembed = discord.Embed(
-            title='Documented History / Information on user: {}'.format(user.name),
+            title='Documented History / Information',
             type='rich',
-            description='Info for the user {}'.format(user.name),
+            description='Username: {}\nUser ID: {}\nNickname: {}\nDoC: {}\nBot User?: {}'.format(user.name, user.id, user.display_name, user.created_at, user.bot),
             colour=discord.Colour.orange()
         )
         userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user_id)))
