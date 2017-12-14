@@ -606,21 +606,26 @@ Reason 1: Being British```
             return
 
         con = self._delete_first_word(message.content)
-        server_id = str(message.server.id)
-        server = discord.Server(id=server_id)
         user_id = str((con).split()[0])
-        user = await server.get_member(user_id)
+        user = await self.client.get_user_info(user_id)
 
         w_infractions = db.get_warning_count(user_id)
         k_infractions = db.get_kicks_count(user_id)
         b_infractions = db.get_bans_count(user_id)
         links = db.get_link_infractions(user_id)
-        get_users_roles = [role.name for role in user.roles]
-        for role in message.author.roles:
-            if config.limiting_role in get_users_roles:
-                limiting_message = "**YES**"
-            else:
-                limiting_message = "**NO**"
+
+        try:
+            get_users_roles = [role.name for role in user.roles]
+            for role in message.author.roles:
+                if config.limiting_role in get_users_roles:
+                    limiting_message = "**YES**"
+                else:
+                    limiting_message = "**NO**"
+        except:
+            # if the user isnt in the guild, they have no (guild) member object,
+            # therefore don't need to be check for roles
+            limiting_message = "**NO**"
+
         if b_infractions == 1:
             bans_plural = ""
         else:
@@ -640,12 +645,12 @@ Reason 1: Being British```
         userembed = discord.Embed(
             title='<@{}>'.format(user_id),
             type='rich',
-            description='Info for the user {}'.format(user),
+            description='Info for the user {}'.format(user.name),
             colour=discord.Colour.orange()
         )
-        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user.id)))
-        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user.id)))
-        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user.id)))
+        userembed.add_field(name='Warnings', value="They have {} warning{}!\n\n{}".format(str(w_infractions), warnings_plural, db.get_warnings_text(user_id)))
+        userembed.add_field(name='Kicks', value="They have {} kick{}!\n\n{}".format(str(k_infractions), kicks_plural, db.get_kicks_text(user_id)))
+        userembed.add_field(name='Bans', value="They have {} ban{}!\n\n{}".format(str(b_infractions), bans_plural, db.get_bans_text(user_id)))
         userembed.add_field(name='Link Infractions', value='{} infraction{}'.format(links, links_plural))
         userembed.add_field(name='Rule 15 role?', value=limiting_message)
         await self.client.send_message(message.channel, embed=userembed)
