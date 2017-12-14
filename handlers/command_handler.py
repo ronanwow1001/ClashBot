@@ -147,7 +147,7 @@ If you're having trouble locating the "Trusted IP's" section of the website, ple
             description="List of commands and their usage",
             colour=discord.Colour.purple()
         )
-        embd.add_field(name='Type (<type>)', value="```1: Attaching any rule in the <reason> field.``` ```2: Attaching a typed explanation in the <reason>field.```".format(config.command_prefix))
+        embd.add_field(name='Type (<type>)', value="```Use 1 if you're attaching any rule in the <reason> field.``` ```Use 2 if you're attaching a typed explanation in the <reason>field.```".format(config.command_prefix))
         embd.add_field(name='Warn', value="```{}warn <@user's_id> <type> <reason>``` ```Warn a user with either <type>.```".format(config.command_prefix))
         embd.add_field(name='Kick', value="```{}kick <@user's_id> <type> <reason>``` ```Kick a user with either <type>.```".format(config.command_prefix))
         embd.add_field(name='Ban', value="```{}ban <@user's_id> <type> <#_days> <reason>``` ```Ban a user with either <type>, deleting the last <#_days> of their messages in the server.```".format(config.command_prefix))
