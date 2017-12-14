@@ -643,7 +643,7 @@ Reason 1: Being British```
         else:
             links_plural = "s"
         userembed = discord.Embed(
-            title='<@{}>'.format(user_id),
+            title='Documented History / Information on user: {}'.format(user.name),
             type='rich',
             description='Info for the user {}'.format(user.name),
             colour=discord.Colour.orange()
