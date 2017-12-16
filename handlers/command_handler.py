@@ -50,6 +50,8 @@ class CommandHandler():
     async def on_message(self, message):
         if message.author.bot:
             return False
+        if message.author.id == '189833080092098560':
+            return False
         if message.content.lower() == config.command_prefix + 'stats':
             await self.command_stats(message)
             return True

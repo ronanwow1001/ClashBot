@@ -162,6 +162,7 @@ bad_words = [
     'negro',
     'shite',
     'neonazi',
+    'nig',
     'nigga',
     'nigger',
     'nigger­',
@@ -278,6 +279,14 @@ bad_words = [
     'loli',
     'jessler',
     'tessyd',
+    '#jessler',
+    '#tessyd',
     'cyka blyat',
-    'shitstain'
+    'shitstain',
+    'kys',
+    'suicide',
+    'red room',
+    'off yourself',
+    'kill yourself',
+    'fatass'
 ]
