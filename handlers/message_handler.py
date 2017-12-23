@@ -118,7 +118,7 @@ class MessageHandler():
         bw_chat_message = message.content.split(" ")#Splits messages into a list so we can check every word.
         #Comparing each word against the blacklist
         for msg in bw_chat_message: #Loop through words in chat message
-            word_clean = ''.join(i for i in msg.lower() if  i in 'qwertyuiopasdfghjklzxcvbnm123456789')
+            word_clean = ''.join(i for i in msg.lower() if  i in 'qwertyuiopasdfghjklzxcvbnm1234567890')
             for bw in blacklist.bad_words:
                 if word_clean == bw:
                     bad_word = True
