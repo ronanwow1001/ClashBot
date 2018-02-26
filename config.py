@@ -1,4 +1,4 @@
-discord_token = ''
+discord_token = '#1234#2020#3529'
 
 admins = [
     '',
